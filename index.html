@@ -1807,8 +1807,13 @@ function authSetup(){
 function openSetPasswordModal(mn){
   var ex=document.getElementById('sPMd');if(ex)ex.remove();
   var m=document.createElement('div');m.id='sPMd';m.className='modal-overlay';
-  m.innerHTML='<div class="modal-box" style="max-width:320px"><div class="modal-hdr"><span>Set Password - '+mn+'</span><button class="modal-close" onclick="document.getElementById('sPMd').remove()">X</button></div><div class="fld"><label>New Password</label><input class="fi" id="spN" type="password" maxlength="50"/></div><div class="fld"><label>Confirm</label><input class="fi" id="spC" type="password" maxlength="50"/></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" onclick="document.getElementById('sPMd').remove()">Cancel</button><button class="btn bg" onclick="savePwdFor(''+mn+'')">Save</button></div></div>';
+  var _mn=mn;
+  m.innerHTML='<div class="modal-box" style="max-width:320px"><div class="modal-hdr"><span>Set Password - '+_mn+'</span><button class="modal-close" id="sPMdClose">✕</button></div><div class="fld"><label>New Password</label><input class="fi" id="spN" type="password" maxlength="50"/></div><div class="fld"><label>Confirm</label><input class="fi" id="spC" type="password" maxlength="50"/></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" id="sPMdCancel">Cancel</button><button class="btn bg" id="sPMdSave">Save</button></div></div>';
   document.body.appendChild(m);
+  document.getElementById('sPMdClose').onclick=function(){m.remove();};
+  document.getElementById('sPMdCancel').onclick=function(){m.remove();};
+  document.getElementById('sPMdSave').onclick=function(){savePwdFor(_mn);};
+  return;
 }
 function savePwdFor(name){
   var np=(document.getElementById('spN').value||'').trim();
@@ -1826,8 +1831,11 @@ function resetPasswordFor(name){
 function openChangePasswordModal(){
   var ex=document.getElementById('cPMd');if(ex)ex.remove();
   var m=document.createElement('div');m.id='cPMd';m.className='modal-overlay';
-  m.innerHTML='<div class="modal-box" style="max-width:320px"><div class="modal-hdr"><span>Change Password</span><button class="modal-close" onclick="document.getElementById('cPMd').remove()">X</button></div><div class="fld"><label>Current</label><input class="fi" id="cpC" type="password" maxlength="50"/></div><div class="fld"><label>New</label><input class="fi" id="cpN" type="password" maxlength="50"/></div><div class="fld"><label>Confirm</label><input class="fi" id="cpCf" type="password" maxlength="50"/></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" onclick="document.getElementById('cPMd').remove()">Cancel</button><button class="btn bg" onclick="saveOwnPassword()">Change</button></div></div>';
+  m.innerHTML='<div class="modal-box" style="max-width:320px"><div class="modal-hdr"><span>Change Password</span><button class="modal-close" id="cPMdClose">✕</button></div><div class="fld"><label>Current</label><input class="fi" id="cpC" type="password" maxlength="50"/></div><div class="fld"><label>New</label><input class="fi" id="cpN" type="password" maxlength="50"/></div><div class="fld"><label>Confirm</label><input class="fi" id="cpCf" type="password" maxlength="50"/></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" id="cPMdCancel">Cancel</button><button class="btn bg" id="cPMdSave">Change</button></div></div>';
   document.body.appendChild(m);
+  document.getElementById('cPMdClose').onclick=function(){m.remove();};
+  document.getElementById('cPMdCancel').onclick=function(){m.remove();};
+  document.getElementById('cPMdSave').onclick=saveOwnPassword;
 }
 function saveOwnPassword(){
   if(!cu)return;
@@ -2622,6 +2630,34 @@ function loginWith(str){
 // ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
+function populateAssigneeDropdown(){
+  var ids=['inA','caA','execAssign'];
+  ids.forEach(function(id){
+    var sel=document.getElementById(id);
+    if(!sel)return;
+    var cur=sel.value;
+    sel.innerHTML='<option value="">— Select Member —</option>';
+    // Manager group
+    var mgr=MEMBERS.filter(function(m){return m.shift==='both';});
+    var morning=MEMBERS.filter(function(m){return m.shift==='morning';});
+    var evening=MEMBERS.filter(function(m){return m.shift==='evening';});
+    function addGroup(label,arr){
+      if(!arr.length)return;
+      var g=document.createElement('optgroup');g.label=label;
+      arr.forEach(function(m){
+        var o=document.createElement('option');
+        o.value=m.name;o.textContent=m.emoji+' '+m.name;
+        if(m.name===cur)o.selected=true;
+        g.appendChild(o);
+      });
+      sel.appendChild(g);
+    }
+    addGroup('👑 Manager',mgr);
+    addGroup('🌅 Morning Shift',morning);
+    addGroup('🌙 Evening Shift',evening);
+  });
+}
+
 function initApp(){
   populateAssigneeDropdown();
   populateLoginDropdown();
