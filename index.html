@@ -1566,11 +1566,11 @@ textarea.fi2{resize:vertical;min-height:58px;}
 .auth-divider-line::before,.auth-divider-line::after {
   content:'';flex:1;height:1px;background:rgba(255,255,255,.08);
 }
+
+.auth-btn-outline{width:100%;padding:14px;background:transparent;border:2px solid rgba(99,102,241,.4);border-radius:12px;color:rgba(165,180,252,.9);font-size:.92rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;transition:all .2s;letter-spacing:.2px;}
+.auth-btn-outline:hover{border-color:rgba(99,102,241,.8);background:rgba(99,102,241,.1);color:#fff;transform:translateY(-1px);}
 </style>
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<!-- Firebase removed — using Username+Password auth -->
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyD33lEhUinxQHWME7DkiOrHfHamuNzA12A",
@@ -1581,9 +1581,9 @@ const firebaseConfig = {
   appId: "1:956914174121:web:75682ac4cd5962b35101b8",
   measurementId: "G-5B2VY4T9QF"
 };
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const auth = firebase.auth();
+// Firebase auth removed
+const db = { collection: function(){ return { doc: function(){ return { get: function(){ return Promise.resolve({exists:false,data:function(){return{};}}); }, set: function(){ return Promise.resolve(); } }; } }; } };
+const auth = {};
 
 // ═══════════════════════════════════════
 // TEAM SETUP — Manager adds real members
@@ -1691,151 +1691,250 @@ function deleteMember(idx) {
 
 
 
-// ═══════════════════════════════════════
-// AUTH V7 — SINGLE FORM LOGIN
-// ═══════════════════════════════════════
-const POSITION_CONFIG = {
-  manager:  {emoji:'👑',color:'#d97706',bg:'rgba(217,119,6,.15)',shift:'both',    label:'Manager'},
-  teamlead: {emoji:'🌟',color:'#7c3aed',bg:'rgba(124,58,237,.15)',shift:'morning',label:'Team Lead'},
-  colead:   {emoji:'⭐',color:'#0891b2',bg:'rgba(8,145,178,.15)', shift:'morning',label:'Co-Lead'},
-  executive:{emoji:'✨',color:'#2563eb',bg:'rgba(37,99,235,.15)', shift:'morning',label:'Executive'},
-};
 
-function showAuthErr(id, msg) {
-  const el = document.getElementById(id);
+// ═══════════════════════════════════════
+// AUTH — USERNAME + PASSWORD ONLY
+// No Firebase, no OTP, no internet needed
+// ═══════════════════════════════════════
+
+const DEFAULT_PASSWORD = 'habuild123'; // first-time default for everyone
+
+function getPasswords() {
+  return JSON.parse(localStorage.getItem('hb_passwords') || '{}');
+}
+function savePasswords(obj) {
+  localStorage.setItem('hb_passwords', JSON.stringify(obj));
+}
+
+function hashPassword(raw) {
+  let h = 0;
+  const str = 'hb_salt_' + raw + '_habuild';
+  for (let i = 0; i < str.length; i++) {
+    h = ((h << 5) - h) + str.charCodeAt(i);
+    h |= 0;
+  }
+  return 'hbp_' + Math.abs(h).toString(36) + str.length;
+}
+
+function toggleMainPassVis() {
+  const inp = document.getElementById('mainPassword');
+  const btn = document.getElementById('mainPassVisBtn');
+  if (!inp) return;
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+  if (btn) btn.textContent = inp.type === 'password' ? '👁️' : '🙈';
+}
+
+function showMainErr(msg) {
+  const el = document.getElementById('authMainErr');
   if (!el) return;
   el.textContent = msg;
   el.classList.add('show');
   setTimeout(function(){ el.classList.remove('show'); }, 4500);
 }
 
-function authSendOTP() {
-  const name  = (document.getElementById('afName').value  || '').trim();
-  const role  = (document.getElementById('afRole').value  || '');
-  const phone = (document.getElementById('afPhone').value || '').trim();
-  const email = (document.getElementById('afEmail').value || '').trim();
+function authMainLogin() {
+  const username = (document.getElementById('mainUsername').value || '').trim();
+  const password = (document.getElementById('mainPassword').value || '').trim();
 
-  if (!name)  { showAuthErr('authErr','Please enter your name'); return; }
-  if (!role)  { showAuthErr('authErr','Please select your role'); return; }
-  if (!phone || phone.length !== 10) { showAuthErr('authErr','Enter a valid 10-digit phone number'); return; }
+  if (!username) { showMainErr('Please enter your username'); document.getElementById('mainUsername').focus(); return; }
+  if (!password) { showMainErr('Please enter your password'); document.getElementById('mainPassword').focus(); return; }
 
-  // Build profile value for loginWith
-  const cfg = POSITION_CONFIG[role] || POSITION_CONFIG.executive;
-  fbProfile = name + '|' + cfg.emoji + '|' + cfg.color + '|' + role;
-  fbPhone   = phone;
+  const pwds = getPasswords();
+  const key  = username.toLowerCase();
 
-  // Save/update member in MEMBERS
-  if (!MEMBERS.find(function(m){ return m.name === name; })) {
-    MEMBERS.push({
-      name:name, role:cfg.label, emoji:cfg.emoji,
-      color:cfg.color, bg:cfg.bg, shift:cfg.shift, roleKey:role
-    });
+  // Check stored password — or fall back to default
+  const storedHash = pwds[key];
+  const enteredHash = hashPassword(password);
+  const defaultHash = hashPassword(DEFAULT_PASSWORD);
+
+  const isDefaultLogin = !storedHash && enteredHash === defaultHash;
+  const isCorrect = storedHash ? (storedHash === enteredHash) : isDefaultLogin;
+
+  if (!isCorrect) {
+    showMainErr('Wrong password. Please try again.');
+    const inp = document.getElementById('mainPassword');
+    if (inp) {
+      inp.style.borderColor = 'rgba(239,68,68,.6)';
+      inp.value = '';
+      inp.focus();
+      setTimeout(function(){ inp.style.borderColor = ''; }, 1500);
+    }
+    // Show hint after wrong password
+    const hint = document.getElementById('firstTimeHint');
+    const mgrHint = document.getElementById('managerSetupHint');
+    if (hint) hint.style.display = 'block';
+    if (mgrHint && key === 'manager') mgrHint.style.display = 'block';
+    return;
+  }
+
+  // Find member in MEMBERS list
+  const member = MEMBERS.find(function(m){ return m.name.toLowerCase() === key; });
+
+  if (!member) {
+    // Auto-register as executive if not found
+    const selRole = (document.getElementById('mainRole')||{value:'executive'}).value || 'executive';
+    const selDept = (document.getElementById('mainDept')||{value:'Session Team'}).value || 'Session Team';
+    const PCFG = {manager:{emoji:'👑',color:'#d97706',bg:'rgba(217,119,6,.15)',shift:'both',label:'Manager'},teamlead:{emoji:'🌟',color:'#7c3aed',bg:'rgba(124,58,237,.15)',shift:'morning',label:'Team Lead'},colead:{emoji:'⭐',color:'#0891b2',bg:'rgba(8,145,178,.15)',shift:'morning',label:'Co-Lead'},executive:{emoji:'✨',color:'#6366f1',bg:'rgba(99,102,241,.15)',shift:'morning',label:'Executive'}};
+    const rc = PCFG[selRole] || PCFG.executive;
+    const deptShift = {'Session Team':'both','Morning Shift':'morning','Evening Shift':'evening'};
+    const newMember = {
+      name: username,
+      role: rc.label,
+      emoji: rc.emoji,
+      color: rc.color,
+      bg: rc.bg,
+      shift: deptShift[selDept] || rc.shift,
+      roleKey: selRole
+    };
+    MEMBERS.push(newMember);
     saveMembers();
+    const profileVal = username + '|' + rc.emoji + '|' + rc.color + '|' + selRole;
+    toast('Welcome ' + username + '! 🎉');
+    setTimeout(function(){ loginWith(profileVal); }, 600);
+    return;
   }
 
-  // Save to registeredUsers
-  let registeredUsers = JSON.parse(localStorage.getItem('hb_users') || '[]');
-  const existing = registeredUsers.findIndex(function(u){ return u.name === name; });
-  const userObj = {name:name, role:role, dept:'Session Team', email:email, phone:phone,
-    emoji:cfg.emoji, color:cfg.color, bg:cfg.bg, shift:cfg.shift, roleKey:role};
-  if (existing >= 0) registeredUsers[existing] = userObj;
-  else registeredUsers.push(userObj);
-  localStorage.setItem('hb_users', JSON.stringify(registeredUsers));
+  const profileVal = member.name + '|' + (member.emoji||'👤') + '|' + (member.color||'#6366f1') + '|' + (member.roleKey||'executive');
 
-  // Send Firebase OTP
-  const fullPhone = '+91' + phone;
-  const btn = document.querySelector('#authStep1 .auth-btn');
-  if (btn) { btn.textContent = 'Sending OTP...'; btn.disabled = true; }
-
-  if (!recaptchaVerifier) { initRecaptcha(); }
-
-  // Small delay to ensure recaptcha is ready
-  setTimeout(function() {
-    auth.signInWithPhoneNumber(fullPhone, recaptchaVerifier).then(function(result) {
-      confirmationResult = result;
-      if (btn) { btn.textContent = 'Send OTP →'; btn.disabled = false; }
-      // Switch to OTP step
-      const s1 = document.getElementById('authStep1');
-      const s2 = document.getElementById('authStep2');
-      if (s1) s1.classList.add('hidden');
-      if (s2) s2.classList.remove('hidden');
-      const sub = document.getElementById('authOtpSub');
-      if (sub) sub.textContent = 'Code sent to +91 ' + phone.slice(0,5) + '*****';
-      const o0 = document.getElementById('o0'); if (o0) o0.focus();
-      startOtpTimer(120);
-      toast('OTP sent to +91' + phone + ' ✅');
-    }).catch(function(err) {
-      if (btn) { btn.textContent = 'Send OTP →'; btn.disabled = false; }
-      if (err.code === 'auth/too-many-requests') showAuthErr('authErr','Too many attempts. Please try later.');
-      else if (err.code === 'auth/invalid-phone-number') showAuthErr('authErr','Invalid phone number.');
-      else { showAuthErr('authErr','Failed to send OTP. Please retry.'); initRecaptcha(); }
-      console.error('OTP error:', err.code);
-    });
-  }, 500);
-}
-
-function authGoBack() {
-  const s1 = document.getElementById('authStep1');
-  const s2 = document.getElementById('authStep2');
-  if (s1) s1.classList.remove('hidden');
-  if (s2) s2.classList.add('hidden');
-  clearOtpTimer();
-  confirmationResult = null;
-  [0,1,2,3,4,5].forEach(function(i){const el=document.getElementById('o'+i);if(el)el.value='';});
-}
-
-function authVerifyOTP() {
-  const entered = [0,1,2,3,4,5].map(function(i){
-    return (document.getElementById('o'+i)||{value:''}).value;
-  }).join('');
-  if (entered.length < 6) { showAuthErr('authOtpErr','Please enter all 6 digits'); return; }
-  if (!confirmationResult) { showAuthErr('authOtpErr','Please request OTP first'); authGoBack(); return; }
-
-  const btn = document.querySelector('#authStep2 .auth-btn');
-  if (btn) { btn.textContent = 'Verifying...'; btn.disabled = true; }
-
-  confirmationResult.confirm(entered).then(function() {
-    clearOtpTimer();
-    if (btn) { btn.textContent = '✓ Verify & Sign In'; btn.disabled = false; }
-    toast('Verified! Signing you in... ✅');
-    setTimeout(function(){ loginWith(fbProfile); }, 700);
-  }).catch(function(err) {
-    if (btn) { btn.textContent = '✓ Verify & Sign In'; btn.disabled = false; }
-    if (err.code === 'auth/invalid-verification-code') showAuthErr('authOtpErr','Wrong OTP — please check and retry');
-    else if (err.code === 'auth/code-expired') { showAuthErr('authOtpErr','OTP expired — click Resend'); }
-    else showAuthErr('authOtpErr','Verification failed. Try again.');
-    [0,1,2,3,4,5].forEach(function(i){
-      const el=document.getElementById('o'+i);
-      if(el){el.value='';el.style.borderColor='rgba(239,68,68,.6)';}
-    });
-    setTimeout(function(){
-      [0,1,2,3,4,5].forEach(function(i){const el=document.getElementById('o'+i);if(el)el.style.borderColor='';});
-    },1500);
-  });
-}
-
-function authResendOTP() {
-  authGoBack();
-  setTimeout(function(){ initRecaptcha(); }, 200);
-}
-
-function otpIn(el, i) {
-  el.value = el.value.replace(/[^0-9]/g,'');
-  if (el.value && i < 5) {
-    const next = document.getElementById('o'+(i+1)); if(next) next.focus();
+  // If first login with default password, prompt to change
+  if (isDefaultLogin) {
+    toast('Welcome! Please change your password in Settings 🔑');
+  } else {
+    toast('Welcome back, ' + member.name + '! ✅');
   }
-  const all = [0,1,2,3,4,5].map(function(j){
-    return (document.getElementById('o'+j)||{value:''}).value;
-  }).join('');
-  if (all.length === 6) setTimeout(authVerifyOTP, 300);
-}
-function on_(el,i){ otpIn(el,i); }
 
-// Stub unused functions from old auth
-function showRegister(){}
-function showLogin(){}
-function doRegister(){}
-function showAuthStep(){}
+  setTimeout(function(){ loginWith(profileVal); }, 600);
+}
+
+// Show hints on username focus
+document.addEventListener('DOMContentLoaded', function() {
+  const uInput = document.getElementById('mainUsername');
+  if (uInput) {
+    uInput.addEventListener('input', function() {
+      const val = this.value.toLowerCase();
+      const mgrHint = document.getElementById('managerSetupHint');
+      if (mgrHint) mgrHint.style.display = val === 'manager' ? 'block' : 'none';
+    });
+    uInput.focus();
+  }
+});
+
+// ── Password management (called from Team Setup) ─────────────────
+function openSetPasswordModal(memberName) {
+  const existing = document.getElementById('setPassModal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'setPassModal';
+  modal.className = 'modal-overlay';
+  modal.innerHTML =
+    '<div class="modal-box" style="max-width:340px">' +
+      '<div class="modal-hdr">' +
+        '<span>🔑 Set Password — ' + memberName + '</span>' +
+        '<button class="modal-close" onclick="document.getElementById(&quot;setPassModal&quot;).remove()">✕</button>' +
+      '</div>' +
+      '<div style="font-size:.75rem;color:var(--tx3);margin-bottom:14px">' +
+        'Username: <strong style="color:var(--tx)">' + memberName + '</strong><br>' +
+        'Set a password they will use to login.' +
+      '</div>' +
+      '<div class="fld"><label>New Password</label>' +
+        '<input class="fi" id="spNewPass" type="password" placeholder="Min 4 characters" maxlength="50"/></div>' +
+      '<div class="fld"><label>Confirm Password</label>' +
+        '<input class="fi" id="spConfPass" type="password" placeholder="Repeat password" maxlength="50"/></div>' +
+      '<div style="font-size:.7rem;color:var(--tx3);margin-bottom:12px">Default password (if not set): <strong>habuild123</strong></div>' +
+      '<div style="display:flex;gap:8px;margin-top:4px">' +
+        '<button class="btn" onclick="document.getElementById(&quot;setPassModal&quot;).remove()" style="flex:1">Cancel</button>' +
+        '<button class="btn bg" onclick="savePasswordFor(\'' + memberName + '\')" style="flex:2">✅ Save Password</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(modal);
+  setTimeout(function(){ const inp=document.getElementById('spNewPass'); if(inp)inp.focus(); }, 150);
+}
+
+function savePasswordFor(name) {
+  const np = (document.getElementById('spNewPass').value || '').trim();
+  const cp = (document.getElementById('spConfPass').value || '').trim();
+  if (!np || np.length < 4) { toast('Password must be at least 4 characters!'); return; }
+  if (np !== cp) { toast('Passwords do not match!'); return; }
+  const pwds = getPasswords();
+  pwds[name.toLowerCase()] = hashPassword(np);
+  savePasswords(pwds);
+  const modal = document.getElementById('setPassModal');
+  if (modal) modal.remove();
+  toast('✅ Password set for ' + name);
+}
+
+function resetPasswordFor(name) {
+  if (!confirm('Reset password for ' + name + ' to default (habuild123)?')) return;
+  const pwds = getPasswords();
+  delete pwds[name.toLowerCase()];
+  savePasswords(pwds);
+  toast('Password reset to habuild123 for ' + name);
+  renderTeamSetup();
+}
+
+// Change own password (from slide menu settings)
+function openChangePasswordModal() {
+  const existing = document.getElementById('changePassModal');
+  if (existing) existing.remove();
+  const modal = document.createElement('div');
+  modal.id = 'changePassModal';
+  modal.className = 'modal-overlay';
+  modal.innerHTML =
+    '<div class="modal-box" style="max-width:340px">' +
+      '<div class="modal-hdr">' +
+        '<span>🔑 Change My Password</span>' +
+        '<button class="modal-close" onclick="document.getElementById(&quot;changePassModal&quot;).remove()">✕</button>' +
+      '</div>' +
+      '<div class="fld"><label>Current Password</label>' +
+        '<input class="fi" id="cpCurrent" type="password" placeholder="Your current password" maxlength="50"/></div>' +
+      '<div class="fld"><label>New Password</label>' +
+        '<input class="fi" id="cpNew" type="password" placeholder="Min 4 characters" maxlength="50"/></div>' +
+      '<div class="fld"><label>Confirm New Password</label>' +
+        '<input class="fi" id="cpConfirm" type="password" placeholder="Repeat new password" maxlength="50"/></div>' +
+      '<div style="display:flex;gap:8px;margin-top:14px">' +
+        '<button class="btn" onclick="document.getElementById(&quot;changePassModal&quot;).remove()" style="flex:1">Cancel</button>' +
+        '<button class="btn bg" onclick="saveOwnPassword()" style="flex:2">✅ Change Password</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(modal);
+  setTimeout(function(){ document.getElementById('cpCurrent').focus(); }, 150);
+}
+
+function saveOwnPassword() {
+  if (!cu) return;
+  const current = (document.getElementById('cpCurrent').value || '').trim();
+  const np = (document.getElementById('cpNew').value || '').trim();
+  const cp = (document.getElementById('cpConfirm').value || '').trim();
+  const pwds = getPasswords();
+  const key = cu.name.toLowerCase();
+  const storedHash = pwds[key];
+  const currentHash = hashPassword(current);
+  const defaultHash = hashPassword(DEFAULT_PASSWORD);
+  const isValid = storedHash ? storedHash === currentHash : currentHash === defaultHash;
+  if (!isValid) { toast('Current password is wrong!'); return; }
+  if (!np || np.length < 4) { toast('New password must be at least 4 characters!'); return; }
+  if (np !== cp) { toast('New passwords do not match!'); return; }
+  pwds[key] = hashPassword(np);
+  savePasswords(pwds);
+  const modal = document.getElementById('changePassModal');
+  if (modal) modal.remove();
+  toast('✅ Password changed successfully!');
+}
+
+// Stubs for removed OTP functions
+function authSendOTP(){}
+function authVerifyOTP(){}
+function authGoBack(){}
+function authResendOTP(){}
+function otpIn(){}
+
+function showPassLogin(){}
+function showOtpLogin(){}
+function togglePassVis(){}
+function authPassLogin(){}
+function showPassErr(){}
+
+
 
 
 
@@ -2249,148 +2348,6 @@ function stringToColor(str) {
 }
 
 
-// ═══════════════════════════════════════
-// USERNAME + PASSWORD LOGIN
-// ═══════════════════════════════════════
-// Passwords stored as hashed values in localStorage
-// Manager sets passwords via Team Setup panel
-// Format: hb_passwords = { username_lower: hashedPassword }
-
-function hashPassword(raw) {
-  // Simple deterministic hash for localStorage (not cryptographic — for basic protection)
-  let h = 0;
-  const str = 'hb_salt_' + raw + '_habuild';
-  for (let i = 0; i < str.length; i++) {
-    h = ((h << 5) - h) + str.charCodeAt(i);
-    h |= 0;
-  }
-  return 'hbp_' + Math.abs(h).toString(36) + str.length;
-}
-
-function getPasswords() {
-  return JSON.parse(localStorage.getItem('hb_passwords') || '{}');
-}
-function savePasswords(obj) {
-  localStorage.setItem('hb_passwords', JSON.stringify(obj));
-}
-
-function showPassLogin() {
-  const otp  = document.getElementById('authOtpPanel');
-  const pass = document.getElementById('authPassPanel');
-  const hint = document.getElementById('authPassSetupHint');
-  if (otp)  otp.classList.add('hidden');
-  if (pass) { pass.classList.remove('hidden'); pass.style.animation='slideRight .4s cubic-bezier(.34,1.4,.64,1) both'; }
-  // Show hint if no passwords set yet
-  const pwds = getPasswords();
-  if (hint) hint.style.display = Object.keys(pwds).length === 0 ? 'block' : 'none';
-  setTimeout(function(){ const u=document.getElementById('passUsername'); if(u)u.focus(); }, 300);
-}
-
-function showOtpLogin() {
-  const otp  = document.getElementById('authOtpPanel');
-  const pass = document.getElementById('authPassPanel');
-  if (pass) pass.classList.add('hidden');
-  if (otp)  { otp.classList.remove('hidden'); otp.style.animation='slideRight .4s cubic-bezier(.34,1.4,.64,1) both'; }
-}
-
-function togglePassVis() {
-  const inp = document.getElementById('passPassword');
-  const btn = document.getElementById('passVisBtn');
-  if (!inp) return;
-  if (inp.type === 'password') { inp.type='text'; if(btn)btn.textContent='🙈'; }
-  else { inp.type='password'; if(btn)btn.textContent='👁️'; }
-}
-
-function authPassLogin() {
-  const username = (document.getElementById('passUsername').value || '').trim();
-  const password = (document.getElementById('passPassword').value || '').trim();
-
-  if (!username) { showPassErr('Please enter your username'); return; }
-  if (!password) { showPassErr('Please enter your password'); return; }
-
-  const pwds = getPasswords();
-  const key  = username.toLowerCase();
-
-  if (!pwds[key]) {
-    showPassErr('Username not found. Ask your Manager to set your password.');
-    document.getElementById('authPassSetupHint').style.display = 'block';
-    return;
-  }
-
-  if (pwds[key] !== hashPassword(password)) {
-    showPassErr('Wrong password. Please try again.');
-    const inp = document.getElementById('passPassword');
-    if (inp) { inp.style.borderColor='rgba(239,68,68,.6)'; inp.value=''; inp.focus(); }
-    setTimeout(function(){ const i=document.getElementById('passPassword'); if(i)i.style.borderColor=''; }, 1500);
-    return;
-  }
-
-  // Find member
-  const member = MEMBERS.find(function(m){ return m.name.toLowerCase() === key; });
-  if (!member) {
-    showPassErr('Profile not found. Please sign in with OTP first to register.');
-    return;
-  }
-
-  const profileVal = member.name + '|' + (member.emoji||'👤') + '|' + (member.color||'#6366f1') + '|' + (member.roleKey||'executive');
-  toast('✅ Welcome back, ' + member.name + '!');
-  setTimeout(function(){ loginWith(profileVal); }, 600);
-}
-
-function showPassErr(msg) {
-  const el = document.getElementById('authPassErr');
-  if (!el) return;
-  el.textContent = msg; el.classList.add('show');
-  setTimeout(function(){ el.classList.remove('show'); }, 4000);
-}
-
-// ── Manager sets passwords in Team Setup ─────────────────────────
-function openSetPasswordModal(memberName) {
-  // Inline modal for setting password
-  const existing = document.getElementById('setPassModal');
-  if (existing) existing.remove();
-
-  const modal = document.createElement('div');
-  modal.id = 'setPassModal';
-  modal.className = 'modal-overlay';
-  modal.innerHTML =
-    '<div class="modal-box" style="max-width:340px">' +
-      '<div class="modal-hdr"><span>🔑 Set Password — ' + memberName + '</span>' +
-        '<button class="modal-close" onclick="document.getElementById('setPassModal').remove()">✕</button></div>' +
-      '<div style="font-size:.75rem;color:var(--tx3);margin-bottom:14px">Set a login password for <strong>' + memberName + '</strong>. They will use their name as username.</div>' +
-      '<div class="fld"><label>New Password</label>' +
-        '<input class="fi" id="spNewPass" type="password" placeholder="Min 4 characters" maxlength="50"/></div>' +
-      '<div class="fld"><label>Confirm Password</label>' +
-        '<input class="fi" id="spConfPass" type="password" placeholder="Repeat password" maxlength="50"/></div>' +
-      '<div style="display:flex;gap:8px;margin-top:14px">' +
-        '<button class="btn" onclick="document.getElementById('setPassModal').remove()" style="flex:1">Cancel</button>' +
-        '<button class="btn bg" onclick="savePasswordFor(\'' + memberName + '\')" style="flex:2">✅ Save Password</button>' +
-      '</div>' +
-    '</div>';
-  document.body.appendChild(modal);
-  setTimeout(function(){ const inp=document.getElementById('spNewPass'); if(inp)inp.focus(); }, 150);
-}
-
-function savePasswordFor(name) {
-  const np = (document.getElementById('spNewPass').value || '').trim();
-  const cp = (document.getElementById('spConfPass').value || '').trim();
-  if (!np || np.length < 4) { toast('Password must be at least 4 characters!'); return; }
-  if (np !== cp) { toast('Passwords do not match!'); return; }
-  const pwds = getPasswords();
-  pwds[name.toLowerCase()] = hashPassword(np);
-  savePasswords(pwds);
-  document.getElementById('setPassModal').remove();
-  toast('✅ Password set for ' + name);
-}
-
-function resetPasswordFor(name) {
-  if (!confirm('Remove password for ' + name + '? They will need a new one to use password login.')) return;
-  const pwds = getPasswords();
-  delete pwds[name.toLowerCase()];
-  savePasswords(pwds);
-  toast('Password removed for ' + name);
-  renderTeamSetup();
-}
 
 </script>
 </head>
@@ -2399,52 +2356,48 @@ function resetPasswordFor(name) {
 <!-- ══ LOGIN ══ -->
 <div id="loginScreen">
   <div class="auth-wrap">
-
-    <!-- LEFT BRANDING -->
     <div class="auth-left">
       <div class="auth-left-inner">
         <div class="auth-brand-icon">✅</div>
         <h1 class="auth-brand-name">Habuild<br>To Do</h1>
         <p class="auth-brand-tagline">Team Task &amp; Session Manager</p>
         <div class="auth-brand-dots"><span></span><span></span><span></span></div>
-        <div style="margin-top:28px;display:flex;flex-direction:column;gap:10px;text-align:left">
-          <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.6);font-size:.78rem">
-            <span style="width:28px;height:28px;background:rgba(99,102,241,.2);border-radius:8px;display:flex;align-items:center;justify-content:center">⏰</span>
-            5-min task reminders
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.6);font-size:.78rem">
-            <span style="width:28px;height:28px;background:rgba(16,185,129,.2);border-radius:8px;display:flex;align-items:center;justify-content:center">📊</span>
-            50+ Google Sheets library
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.6);font-size:.78rem">
-            <span style="width:28px;height:28px;background:rgba(245,158,11,.2);border-radius:8px;display:flex;align-items:center;justify-content:center">👥</span>
-            19-member team management
-          </div>
+        <div style="margin-top:32px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.6);font-size:.78rem"><span style="width:30px;height:30px;background:rgba(99,102,241,.25);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">⏰</span>5-min task reminders</div>
+          <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.6);font-size:.78rem"><span style="width:30px;height:30px;background:rgba(16,185,129,.25);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">📊</span>50+ Google Sheets library</div>
+          <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.6);font-size:.78rem"><span style="width:30px;height:30px;background:rgba(245,158,11,.25);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">👥</span>Full team task management</div>
         </div>
       </div>
     </div>
-
-    <!-- RIGHT FORM -->
     <div class="auth-right">
       <div class="auth-form-wrap">
 
-        <!-- ══ OTP LOGIN (default) ══ -->
-        <div id="authOtpPanel">
+        <!-- WELCOME -->
+        <div id="authP0">
+          <div style="text-align:center;margin-bottom:32px">
+            <div style="font-size:2.8rem;margin-bottom:8px">👋</div>
+            <h2 class="auth-form-title" style="text-align:center">Welcome!</h2>
+            <p class="auth-form-sub" style="text-align:center">What would you like to do?</p>
+          </div>
+          <button class="auth-btn" onclick="showAuthPanel('authPReg')" style="margin-bottom:12px">🆕 New User — Register</button>
+          <button class="auth-btn auth-btn-outline" onclick="showAuthPanel('authPLogin')">🔑 Already have account — Log In</button>
+        </div>
 
-          <!-- STEP 1 — Details -->
-          <div id="authStep1">
-            <h2 class="auth-form-title">Welcome 👋</h2>
-            <p class="auth-form-sub">Sign in with your phone OTP</p>
-            <div id="authErr" class="auth-error"></div>
-
-            <div class="auth-field">
-              <label>Your Name</label>
-              <input class="auth-input" id="afName" type="text" placeholder="Enter your full name" maxlength="40" autocomplete="name"/>
-            </div>
+        <!-- REGISTER -->
+        <div id="authPReg" class="hidden">
+          <button class="auth-back-btn" onclick="showAuthPanel('authP0')">← Back</button>
+          <h2 class="auth-form-title">Create Account 🆕</h2>
+          <p class="auth-form-sub">Fill in your details to register</p>
+          <div id="regErr" class="auth-error"></div>
+          <div class="auth-field">
+            <label>Full Name</label>
+            <input class="auth-input" id="rName" type="text" placeholder="e.g. Rahul Sharma" maxlength="40"/>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
             <div class="auth-field">
               <label>Role</label>
-              <select class="auth-input" id="afRole">
-                <option value="">— Select your role —</option>
+              <select class="auth-input" id="rRole">
+                <option value="">— Select —</option>
                 <option value="manager">👑 Manager</option>
                 <option value="teamlead">🌟 Team Lead</option>
                 <option value="colead">⭐ Co-Lead</option>
@@ -2453,78 +2406,52 @@ function resetPasswordFor(name) {
             </div>
             <div class="auth-field">
               <label>Department</label>
-              <select class="auth-input" id="afDept">
+              <select class="auth-input" id="rDept">
                 <option value="Session Team">Session Team</option>
                 <option value="Morning Shift">Morning Shift</option>
                 <option value="Evening Shift">Evening Shift</option>
               </select>
             </div>
-            <div class="auth-field">
-              <label>Phone Number</label>
-              <div class="auth-phone-row">
-                <span class="auth-flag">🇮🇳 +91</span>
-                <input class="auth-input" id="afPhone" type="tel" placeholder="98765 43210" maxlength="10" oninput="this.value=this.value.replace(/[^0-9]/g,'')"/>
-              </div>
-            </div>
-            <div id="recaptcha-container" style="display:flex;justify-content:center;margin:12px 0"></div>
-            <button class="auth-btn" onclick="authSendOTP()">📱 Send OTP →</button>
-            <div class="auth-divider-line"><span>or</span></div>
-            <button class="auth-btn auth-btn-ghost" onclick="showPassLogin()">🔑 Sign in with Username &amp; Password</button>
           </div>
-
-          <!-- STEP 2 — Enter OTP -->
-          <div id="authStep2" class="hidden">
-            <button class="auth-back-btn" onclick="authGoBack()">← Back</button>
-            <h2 class="auth-form-title">Enter OTP</h2>
-            <p class="auth-form-sub" id="authOtpSub">6-digit code sent to your phone</p>
-            <div id="authOtpErr" class="auth-error"></div>
-            <div class="auth-otp-row" style="margin:24px 0">
-              <input class="auth-otp-box" maxlength="1" oninput="otpIn(this,0)" id="o0" type="tel"/>
-              <input class="auth-otp-box" maxlength="1" oninput="otpIn(this,1)" id="o1" type="tel"/>
-              <input class="auth-otp-box" maxlength="1" oninput="otpIn(this,2)" id="o2" type="tel"/>
-              <input class="auth-otp-box" maxlength="1" oninput="otpIn(this,3)" id="o3" type="tel"/>
-              <input class="auth-otp-box" maxlength="1" oninput="otpIn(this,4)" id="o4" type="tel"/>
-              <input class="auth-otp-box" maxlength="1" oninput="otpIn(this,5)" id="o5" type="tel"/>
-            </div>
-            <div id="otpTimer" style="text-align:center;font-size:.72rem;color:rgba(255,255,255,.4);margin-bottom:18px"></div>
-            <button class="auth-btn" onclick="authVerifyOTP()">✓ Verify &amp; Sign In</button>
-            <button class="auth-btn auth-btn-ghost" onclick="authResendOTP()" style="margin-top:10px">↺ Resend OTP</button>
-          </div>
-
-        </div><!-- end authOtpPanel -->
-
-        <!-- ══ USERNAME + PASSWORD LOGIN ══ -->
-        <div id="authPassPanel" class="hidden">
-          <button class="auth-back-btn" onclick="showOtpLogin()">← Back to OTP login</button>
-          <h2 class="auth-form-title">Sign In 🔑</h2>
-          <p class="auth-form-sub">Use your username and password</p>
-          <div id="authPassErr" class="auth-error"></div>
-
           <div class="auth-field">
-            <label>Username</label>
-            <input class="auth-input" id="passUsername" type="text" placeholder="Enter your username" maxlength="40" autocomplete="username"/>
+            <label>Set Password</label>
+            <div style="position:relative">
+              <input class="auth-input" id="rPass" type="password" placeholder="Min 4 characters" maxlength="50" style="padding-right:44px"/>
+              <button onclick="toggleVis('rPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;font-size:1rem;padding:0">👁️</button>
+            </div>
+          </div>
+          <div class="auth-field">
+            <label>Confirm Password</label>
+            <input class="auth-input" id="rPass2" type="password" placeholder="Repeat password" maxlength="50"/>
+          </div>
+          <button class="auth-btn" onclick="doRegisterUser()" style="margin-top:4px">✅ Register &amp; Enter App</button>
+          <div style="text-align:center;margin-top:16px;font-size:.75rem;color:rgba(255,255,255,.35)">Already registered? <a onclick="showAuthPanel('authPLogin')" style="color:#a5b4fc;cursor:pointer;font-weight:600">Log In</a></div>
+        </div>
+
+        <!-- LOGIN -->
+        <div id="authPLogin" class="hidden">
+          <button class="auth-back-btn" onclick="showAuthPanel('authP0')">← Back</button>
+          <h2 class="auth-form-title">Log In 🔑</h2>
+          <p class="auth-form-sub">Enter your username and password</p>
+          <div id="loginErr" class="auth-error"></div>
+          <div class="auth-field">
+            <label>Username <span style="opacity:.5;font-weight:400">(your registered name)</span></label>
+            <input class="auth-input" id="lUser" type="text" placeholder="e.g. Rahul Sharma" maxlength="40"/>
           </div>
           <div class="auth-field">
             <label>Password</label>
             <div style="position:relative">
-              <input class="auth-input" id="passPassword" type="password" placeholder="Enter your password" maxlength="50" autocomplete="current-password" style="padding-right:44px"/>
-              <button onclick="togglePassVis()" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:1rem;padding:0" id="passVisBtn">👁️</button>
+              <input class="auth-input" id="lPass" type="password" placeholder="Your password" maxlength="50" style="padding-right:44px"/>
+              <button onclick="toggleVis('lPass',this)" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;font-size:1rem;padding:0">👁️</button>
             </div>
           </div>
-          <button class="auth-btn" onclick="authPassLogin()" style="margin-top:4px">Sign In →</button>
-
-          <div class="auth-divider-line"><span>or</span></div>
-          <button class="auth-btn auth-btn-ghost" onclick="showOtpLogin()">📱 Sign in with Phone OTP</button>
-
-          <!-- Manager can set/reset passwords -->
-          <div id="authPassSetupHint" style="margin-top:16px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.15);border-radius:10px;padding:10px 14px;font-size:.72rem;color:rgba(165,180,252,.8);display:none">
-            💡 First time? Ask your Manager to set your password in the app settings.
-          </div>
-        </div><!-- end authPassPanel -->
+          <button class="auth-btn" onclick="doLoginUser()" style="margin-top:4px">Log In →</button>
+          <div style="text-align:center;margin-top:16px;font-size:.75rem;color:rgba(255,255,255,.35)">New here? <a onclick="showAuthPanel('authPReg')" style="color:#a5b4fc;cursor:pointer;font-weight:600">Register</a></div>
+          <div id="loginForgotHint" style="display:none;margin-top:14px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.18);border-radius:10px;padding:11px 14px;font-size:.73rem;color:rgba(165,180,252,.85);line-height:1.6">💡 Forgot password? Ask your <strong>Manager</strong> to reset it from Team Setup panel.</div>
+        </div>
 
       </div>
     </div>
-
   </div>
 </div>
 
@@ -6083,6 +6010,70 @@ function gLogin(){}
 function sendWAOTP(){sendFirebaseOTP();}
 function verWAOTP(){verFirebaseOTP();}
 function resendWAOTP(){resendFirebaseOTP();}
+
+
+// ── AUTH v12: showAuthPanel, Register, Login ──────────────────
+function showAuthPanel(id){
+  ['authP0','authPReg','authPLogin'].forEach(function(p){
+    var el=document.getElementById(p);if(!el)return;
+    if(p===id){el.classList.remove('hidden');el.style.animation='slideRight .4s cubic-bezier(.34,1.4,.64,1) both';}
+    else el.classList.add('hidden');
+  });
+  ['regErr','loginErr'].forEach(function(e){var el=document.getElementById(e);if(el)el.classList.remove('show');});
+}
+function showAuthErr(eid,msg){
+  var el=document.getElementById(eid);if(!el)return;
+  el.textContent=msg;el.classList.add('show');
+  setTimeout(function(){el.classList.remove('show');},4000);
+}
+function toggleVis(inputId,btn){
+  var inp=document.getElementById(inputId);if(!inp)return;
+  inp.type=inp.type==='password'?'text':'password';
+  if(btn)btn.textContent=inp.type==='password'?'👁️':'🙈';
+}
+function doRegisterUser(){
+  var name=(document.getElementById('rName').value||'').trim();
+  var role=document.getElementById('rRole').value||'';
+  var dept=document.getElementById('rDept').value||'Session Team';
+  var pass=(document.getElementById('rPass').value||'').trim();
+  var pass2=(document.getElementById('rPass2').value||'').trim();
+  if(!name){showAuthErr('regErr','Please enter your full name');return;}
+  if(!role){showAuthErr('regErr','Please select your role');return;}
+  if(!pass||pass.length<4){showAuthErr('regErr','Password must be at least 4 characters');return;}
+  if(pass!==pass2){showAuthErr('regErr','Passwords do not match');return;}
+  if(MEMBERS.find(function(m){return m.name.toLowerCase()===name.toLowerCase();})){
+    showAuthErr('regErr','Name already registered — please Log In');return;
+  }
+  var RC={manager:{emoji:'👑',color:'#d97706',bg:'rgba(217,119,6,.15)',shift:'both',label:'Manager'},teamlead:{emoji:'🌟',color:'#7c3aed',bg:'rgba(124,58,237,.15)',shift:'morning',label:'Team Lead'},colead:{emoji:'⭐',color:'#0891b2',bg:'rgba(8,145,178,.15)',shift:'morning',label:'Co-Lead'},executive:{emoji:'✨',color:'#6366f1',bg:'rgba(99,102,241,.15)',shift:'morning',label:'Executive'}};
+  var DS={'Session Team':'both','Morning Shift':'morning','Evening Shift':'evening'};
+  var rc=RC[role]||RC.executive;
+  var shift=DS[dept]||rc.shift;
+  MEMBERS.push({name:name,role:rc.label,emoji:rc.emoji,color:rc.color,bg:rc.bg,shift:shift,roleKey:role});
+  saveMembers();
+  var pwds=getPasswords();pwds[name.toLowerCase()]=hashPwd(pass);savePasswords(pwds);
+  toast('Welcome '+name+'! '+rc.emoji);
+  setTimeout(function(){loginWith(name+'|'+rc.emoji+'|'+rc.color+'|'+role);},500);
+}
+function doLoginUser(){
+  var username=(document.getElementById('lUser').value||'').trim();
+  var password=(document.getElementById('lPass').value||'').trim();
+  if(!username){showAuthErr('loginErr','Please enter your username');return;}
+  if(!password){showAuthErr('loginErr','Please enter your password');return;}
+  var pwds=getPasswords();var key=username.toLowerCase();
+  if(!pwds[key]){showAuthErr('loginErr','Username not found — please Register first');return;}
+  if(pwds[key]!==hashPwd(password)){
+    showAuthErr('loginErr','Wrong password. Please try again.');
+    var inp=document.getElementById('lPass');
+    if(inp){inp.style.borderColor='rgba(239,68,68,.6)';inp.value='';inp.focus();}
+    setTimeout(function(){var i=document.getElementById('lPass');if(i)i.style.borderColor='';},1500);
+    var hint=document.getElementById('loginForgotHint');if(hint)hint.style.display='block';
+    return;
+  }
+  var member=MEMBERS.find(function(m){return m.name.toLowerCase()===key;});
+  if(!member){showAuthErr('loginErr','Profile not found — please Register first');return;}
+  toast('Welcome back '+member.name+'! '+member.emoji);
+  setTimeout(function(){loginWith(member.name+'|'+(member.emoji||'👤')+'|'+(member.color||'#6366f1')+'|'+(member.roleKey||'executive'));},500);
+}
 
 </script>
 
