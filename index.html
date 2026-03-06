@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>🧘🏻 Habuild To Do</title>
+<title>Habuild To Do</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
 <style>
 /* ══════════════ TOKENS ══════════════ */
@@ -63,23 +63,13 @@ body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(-
 
 /* ══════════════ APP SHELL ══════════════ */
 #appScreen{display:none;}
-#loginScreen[style*="display: none"],#loginScreen[style*="display:none"]{visibility:hidden!important;opacity:0!important;pointer-events:none!important;}
-#loginScreen.hidden-fully{display:none!important;visibility:hidden!important;}
 .hdr{background:var(--sf);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);}
-.hdr-i{max-width:1200px;margin:0 auto;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:nowrap;}
-@media(max-width:480px){
-  .hdr-i{padding:6px 10px;gap:6px;}
-  .ln{font-size:.72rem!important;}
-  .ls2{font-size:.62rem!important;}
-  .hdate{font-size:.68rem!important;}
-  .uname{display:none!important;}
-  .lm{width:28px!important;height:28px!important;font-size:14px!important;}
-}
+.hdr-i{max-width:1200px;margin:0 auto;padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:58px;gap:12px;}
 .logo{display:flex;align-items:center;gap:9px;}
 .lm{width:32px;height:32px;background:linear-gradient(135deg,var(--brand),var(--brand2));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
 .ln{font-family:'Fraunces',serif;font-size:1.15rem;font-weight:700;}
 .ls2{font-size:.6rem;color:var(--tx3);display:block;margin-top:-2px;}
-.hdate{font-size:.76rem;color:var(--tx3);display:flex;flex-direction:column;align-items:center;line-height:1.4;text-align:center;flex-shrink:0;}
+.hdate{font-size:.76rem;color:var(--tx3);}
 .hdate strong{color:var(--tx);font-weight:600;}
 .hr{display:flex;align-items:center;gap:6px;}
 .ib{width:34px;height:34px;border-radius:var(--rs);border:1px solid var(--bd);background:transparent;color:var(--tx2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all var(--tr);position:relative;}
@@ -1577,28 +1567,18 @@ textarea.fi2{resize:vertical;min-height:58px;}
   content:'';flex:1;height:1px;background:rgba(255,255,255,.08);
 }
 
-.auth-btn-outline{width:100%;padding:14px;background:transparent;border:2px solid rgba(99,102,241,.4);border-radius:12px;color:rgba(165,180,252,.9);font-size:.92rem;font-weight:700;font-family:'Nunito',sans-serif;cursor:pointer;transition:all .2s;}
-.auth-btn-outline:hover{border-color:rgba(99,102,241,.8);background:rgba(99,102,241,.1);color:#fff;}
-
-/* Kill login screen bleed */
-#loginScreen{transition:none!important;}
-#loginScreen[style*="none"]{display:none!important;visibility:hidden!important;height:0!important;overflow:hidden!important;}
-.auth-input:focus{outline:none;}
-/* Mobile header fixes */
-@media(max-width:600px){
-  .hdr-i{padding:6px 10px;}
-  .logo{gap:6px!important;}
-  .lm{width:28px!important;height:28px!important;font-size:15px!important;border-radius:8px!important;}
-  .ln{font-size:.74rem!important;}
-  .ls2{font-size:.6rem!important;max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .hdate strong{font-size:.75rem!important;}
-  .hdate span{font-size:.65rem!important;}
-  .uname{max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .role-badge{font-size:.6rem!important;padding:2px 6px!important;}
-}
+.auth-btn-outline{width:100%;padding:14px;background:transparent;border:2px solid rgba(99,102,241,.4);border-radius:12px;color:rgba(165,180,252,.9);font-size:.9rem;font-weight:700;cursor:pointer;transition:all .2s;}
+.auth-btn-outline:hover{border-color:rgba(99,102,241,.8);background:rgba(99,102,241,.1);}
+#loginScreen[style*="none"]{display:none!important;visibility:hidden!important;pointer-events:none!important;}
+.hdr-left-btn{display:flex;align-items:center;gap:8px;background:none;border:none;cursor:pointer;padding:4px 8px 4px 0;border-radius:10px;transition:background .15s;flex-shrink:0;}
+.hdr-left-btn:hover{background:var(--sf2);}
+.hdr-i{padding:6px 12px!important;height:auto!important;}
+.dnav{width:100%;overflow-x:auto;border-bottom:1px solid var(--bd);}
+@media(max-width:600px){.hdr-i{padding:5px 8px!important;gap:4px!important;}.role-badge{font-size:.58rem!important;padding:2px 5px!important;}}
 </style>
 <!-- Firebase removed — using Username+Password auth -->
 <script>
+
 const firebaseConfig = {
   apiKey: "AIzaSyD33lEhUinxQHWME7DkiOrHfHamuNzA12A",
   authDomain: "habuild-to-do.firebaseapp.com",
@@ -1720,652 +1700,159 @@ function deleteMember(idx) {
 
 
 // ═══════════════════════════════════════
-// AUTH — USERNAME + PASSWORD ONLY
-// No Firebase, no OTP, no internet needed
-// ═══════════════════════════════════════
-
-const DEFAULT_PASSWORD = 'habuild123'; // first-time default for everyone
-
-
-
-
-
-
-// Show hints on username focus
-document.addEventListener('DOMContentLoaded', function() {
-  const uInput = document.getElementById('mainUsername');
-  if (uInput) {
-    uInput.addEventListener('input', function() {
-      const val = this.value.toLowerCase();
-      const mgrHint = document.getElementById('managerSetupHint');
-      if (mgrHint) mgrHint.style.display = val === 'manager' ? 'block' : 'none';
-    });
-    uInput.focus();
-  }
-});
-
-// ── Password management (called from Team Setup) ─────────────────
-
-
-
-// Change own password (from slide menu settings)
-
-
-// Stubs for removed OTP functions
-function otpIn(){}
-
-
-
-
-
-
-// ═══════════════════════════════════════
-// TASK REMINDER SYSTEM — 5 MIN BEFORE
-// ═══════════════════════════════════════
-let reminderInterval = null;
-let firedReminders = JSON.parse(sessionStorage.getItem('hb_fired_reminders') || '[]');
-// firedReminders: array of taskId+date strings already alerted this session
-
-function startReminderSystem() {
-  // Request browser notification permission
-  if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission();
-  }
-  // Check every 30 seconds
-  checkTaskReminders();
-  reminderInterval = setInterval(checkTaskReminders, 30000);
-}
-
-function checkTaskReminders() {
-  if (!cu) return; // not logged in
-  const now = new Date();
-  const todayIdx = now.getDay() === 0 ? 6 : now.getDay() - 1;
-  const nowMins = now.getHours() * 60 + now.getMinutes();
-
-  // Get today's tasks for current user
-  let myTasks = [];
-  if (cu.role === 'manager' || cu.role === 'teamlead' || cu.role === 'colead') {
-    // Manager/Lead sees all tasks
-    myTasks = tasks.filter(function(t) {
-      return t.days && t.days.includes(todayIdx) && t.time;
-    });
-  } else {
-    // Executive sees their own tasks
-    myTasks = tasks.filter(function(t) {
-      return t.days && t.days.includes(todayIdx) && t.time &&
-        (t.assignee === cu.name || (t.assignee && t.assignee.startsWith(cu.name)));
-    });
-  }
-
-  myTasks.forEach(function(task) {
-    if (!task.time) return;
-    if (task.done) return; // already done — no reminder
-
-    const parts = task.time.split(':');
-    const taskMins = parseInt(parts[0]) * 60 + parseInt(parts[1]);
-    const diffMins = taskMins - nowMins;
-    const reminderKey = task.id + '_' + tds();
-
-    // Fire if 4-6 minutes before (5 min window ± 1 min tolerance)
-    if (diffMins >= 4 && diffMins <= 6) {
-      if (firedReminders.indexOf(reminderKey) === -1) {
-        firedReminders.push(reminderKey);
-        sessionStorage.setItem('hb_fired_reminders', JSON.stringify(firedReminders));
-        showTaskReminder(task);
-      }
-    }
-  });
-
-  // Also check message template alerts
-  checkMsgAlerts();
-}
-
-function showTaskReminder(task) {
-  const title = task.title || 'Task';
-  const time = fmt(task.time);
-
-  // ── 1. Browser Push Notification ──────────────────────────────
-  if ('Notification' in window && Notification.permission === 'granted') {
-    try {
-      new Notification('⏰ Task in 5 Minutes — Habuild', {
-        body: '📌 ' + title + ' — 🕐 ' + time,
-        icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✅</text></svg>',
-        badge: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏰</text></svg>',
-        tag: 'task-reminder-' + task.id,
-        requireInteraction: false,
-        silent: false
-      });
-    } catch(e) { console.log('Notification error:', e); }
-  }
-
-  // ── 2. In-app reminder toast ───────────────────────────────────
-  showReminderToast(title, time);
-
-  // ── 3. Also add to notification panel ─────────────────────────
-  if (cu && cu.name) {
-    const notifMsg = '⏰ Task in 5 min: ' + title + ' at ' + time;
-    addNotif(cu.name, notifMsg, 'reminder');
-  }
-}
-
-function showReminderToast(title, time) {
-  // Remove existing reminder toast if any
-  const existing = document.getElementById('reminderToast');
-  if (existing) existing.remove();
-
-  const toast_el = document.createElement('div');
-  toast_el.id = 'reminderToast';
-  toast_el.className = 'reminder-toast';
-  toast_el.innerHTML =
-    '<span style="font-size:1.4rem">⏰</span>' +
-    '<div>' +
-      '<div style="font-weight:700;font-size:.85rem">Task in 5 minutes!</div>' +
-      '<div style="font-size:.75rem;opacity:.85;margin-top:2px">' + title + ' · ' + time + '</div>' +
-    '</div>' +
-    '<button onclick="this.parentElement.remove()" style="background:rgba(255,255,255,.2);border:none;color:#fff;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:.75rem;flex-shrink:0">✕</button>';
-
-  document.body.appendChild(toast_el);
-
-  // Auto-dismiss after 15 seconds
-  setTimeout(function() {
-    const el = document.getElementById('reminderToast');
-    if (el) {
-      el.style.animation = 'none';
-      el.style.opacity = '0';
-      el.style.transform = 'translateX(-50%) translateY(10px)';
-      el.style.transition = 'all .4s ease';
-      setTimeout(function(){ if(el.parentNode)el.remove(); }, 400);
-    }
-  }, 15000);
-}
-
-function addNotif(name, msg, type) {
-  if (!memNotifs[name]) memNotifs[name] = [];
-  memNotifs[name].unshift({
-    id: 'r_' + Date.now(),
-    msg: msg,
-    type: type || 'reminder',
-    time: new Date().toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'}),
-    read: false
-  });
-  // Keep max 50 notifs
-  if (memNotifs[name].length > 50) memNotifs[name] = memNotifs[name].slice(0, 50);
-  sv();
-  // Update badge
-  const unread = memNotifs[name].filter(function(n){ return !n.read; }).length;
-  const badge = document.getElementById('notifBadge');
-  if (badge) {
-    if (unread > 0) { badge.classList.remove('hidden'); badge.textContent = unread > 9 ? '9+' : unread; }
-    else badge.classList.add('hidden');
-  }
-}
-
-// Hook into initApp to start reminders
-const _origInitApp = initApp;
-initApp = function() {
-  _origInitApp();
-  startReminderSystem();
-};
-
-
-// ═══════════════════════════════════════
-// DYNAMIC ASSIGNEE DROPDOWN
-// ═══════════════════════════════════════
-function populateAssigneeDropdown() {
-  const sel = document.getElementById('inA');
-  if (!sel) return;
-  const filterSels = [
-    document.getElementById('filterAssignee')
-  ];
-  const val = sel.value;
-  sel.innerHTML = '<option value="">— Select Member —</option>';
-  const groups = {morning:[], evening:[], both:[]};
-  MEMBERS.forEach(function(m) {
-    if (m.shift === 'morning') groups.morning.push(m);
-    else if (m.shift === 'evening') groups.evening.push(m);
-    else groups.both.push(m);
-  });
-  if (groups.both.length) {
-    const g = document.createElement('optgroup'); g.label = '── Management ──';
-    groups.both.forEach(function(m){ const o=document.createElement('option');o.value=m.name;o.textContent=m.name+' ('+m.role+')';g.appendChild(o); });
-    sel.appendChild(g);
-  }
-  if (groups.morning.length) {
-    const g = document.createElement('optgroup'); g.label = '── Morning Shift ──';
-    groups.morning.forEach(function(m){ const o=document.createElement('option');o.value=m.name;o.textContent=m.name+' ('+m.role+')';g.appendChild(o); });
-    sel.appendChild(g);
-  }
-  if (groups.evening.length) {
-    const g = document.createElement('optgroup'); g.label = '── Evening Shift ──';
-    groups.evening.forEach(function(m){ const o=document.createElement('option');o.value=m.name;o.textContent=m.name+' ('+m.role+')';g.appendChild(o); });
-    sel.appendChild(g);
-  }
-  const teamOpt = document.createElement('option');
-  teamOpt.value = 'Team'; teamOpt.textContent = '👥 Entire Team';
-  sel.appendChild(teamOpt);
-  if (val) sel.value = val;
-
-  // Also update filter dropdown
-  filterSels.forEach(function(fs) {
-    if (!fs) return;
-    const fval = fs.value;
-    fs.innerHTML = '<option value="">All Members</option>';
-    MEMBERS.forEach(function(m){ const o=document.createElement('option');o.value=m.name;o.textContent=m.name;fs.appendChild(o); });
-    if (fval) fs.value = fval;
-  });
-}
-
-// Hook into initApp & saveMembers
-const _origSaveMembers = saveMembers;
-saveMembers = function() {
-  _origSaveMembers();
-  populateAssigneeDropdown();
-};
-
-// ═══════════════════════════════════════
-// SELF-ASSIGN FOR EXECUTIVES
-// ═══════════════════════════════════════
-function selfAssignTask(taskId) {
-  const t = tasks.find(function(x){ return x.id === taskId; });
-  if (!t) return;
-  if (t.assignee && t.assignee !== '' && t.assignee !== 'Team') {
-    toast('This task is already assigned to ' + t.assignee);
-    return;
-  }
-  t.assignee = cu.name;
-  sv(); renderAll();
-  toast('✅ Task assigned to you!');
-}
-
-// ═══════════════════════════════════════
-// GOOGLE SHEETS LIBRARY
-// ═══════════════════════════════════════
-let sheets = JSON.parse(localStorage.getItem('hb_sheets') || '[]');
-// Each sheet: {id, name, url, category, desc, addedBy, addedAt}
-
-function saveSheets() { localStorage.setItem('hb_sheets', JSON.stringify(sheets)); }
-
-function getSheetCategories() {
-  const cats = [...new Set(sheets.map(function(s){ return s.category || 'General'; }))].sort();
-  return cats;
-}
-
-function populateSheetCatFilters() {
-  ['sheetCatFilter','sheetQuickCat'].forEach(function(id) {
-    const sel = document.getElementById(id); if (!sel) return;
-    const val = sel.value;
-    sel.innerHTML = id === 'sheetCatFilter'
-      ? '<option value="">All Categories</option>'
-      : '<option value="">All</option>';
-    getSheetCategories().forEach(function(cat) {
-      const o = document.createElement('option');
-      o.value = cat; o.textContent = cat;
-      sel.appendChild(o);
-    });
-    if (val) sel.value = val;
-  });
-
-  // Also update datalist for add modal
-  const dl = document.getElementById('shCatList');
-  if (dl) {
-    dl.innerHTML = '';
-    getSheetCategories().forEach(function(cat) {
-      const o = document.createElement('option'); o.value = cat; dl.appendChild(o);
-    });
-  }
-}
-
-function renderSheets() {
-  populateSheetCatFilters();
-  const grid = document.getElementById('sheetsGrid');
-  const empty = document.getElementById('sheetsEmpty');
-  if (!grid) return;
-
-  const q = (document.getElementById('sheetSearch') || {value:''}).value.toLowerCase();
-  const cat = (document.getElementById('sheetCatFilter') || {value:''}).value;
-
-  let filtered = sheets.filter(function(s) {
-    const matchQ = !q || s.name.toLowerCase().includes(q) || (s.desc||'').toLowerCase().includes(q) || (s.category||'').toLowerCase().includes(q);
-    const matchCat = !cat || (s.category || 'General') === cat;
-    return matchQ && matchCat;
-  });
-
-  if (filtered.length === 0) {
-    grid.innerHTML = '';
-    if (empty) empty.classList.remove('hidden');
-    return;
-  }
-  if (empty) empty.classList.add('hidden');
-
-  grid.innerHTML = filtered.map(function(s) {
-    const cat = s.category || 'General';
-    const catColor = stringToColor(cat);
-    return '<div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;transition:all .2s;cursor:pointer;position:relative;overflow:hidden" onclick="openSheet(\'' + s.id + '\')">' +
-      '<div style="position:absolute;top:0;left:0;right:0;height:3px;background:'+catColor+'"></div>' +
-      '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-top:4px">' +
-        '<div style="flex:1;min-width:0">' +
-          '<div style="font-weight:700;font-size:.88rem;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">📊 '+s.name+'</div>' +
-          (s.desc ? '<div style="font-size:.7rem;color:var(--tx3);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+s.desc+'</div>' : '') +
-          '<span style="background:'+catColor+'22;color:'+catColor+';border-radius:20px;padding:2px 10px;font-size:.63rem;font-weight:700">'+cat+'</span>' +
-        '</div>' +
-        (isMgrLevel(cu && cu.role) ? '<div style="display:flex;gap:4px;flex-shrink:0">' +
-          '<button onclick="event.stopPropagation();editSheet(\'' + s.id + '\')" style="background:rgba(99,102,241,.1);border:none;border-radius:6px;padding:4px 8px;font-size:.7rem;cursor:pointer;color:var(--brand)">✏️</button>' +
-          '<button onclick="event.stopPropagation();deleteSheet(\'' + s.id + '\')" style="background:rgba(239,68,68,.1);border:none;border-radius:6px;padding:4px 8px;font-size:.7rem;cursor:pointer;color:var(--red)">🗑️</button>' +
-        '</div>' : '') +
-      '</div>' +
-    '</div>';
-  }).join('');
-}
-
-function renderSheetsQuick() {
-  populateSheetCatFilters();
-  const list = document.getElementById('sheetsQuickList');
-  const empty = document.getElementById('sheetsQuickEmpty');
-  if (!list) return;
-
-  const q = (document.getElementById('sheetQuickSearch') || {value:''}).value.toLowerCase();
-  const cat = (document.getElementById('sheetQuickCat') || {value:''}).value;
-
-  let filtered = sheets.filter(function(s) {
-    const matchQ = !q || s.name.toLowerCase().includes(q) || (s.category||'').toLowerCase().includes(q);
-    const matchCat = !cat || (s.category || 'General') === cat;
-    return matchQ && matchCat;
-  });
-
-  if (filtered.length === 0) {
-    list.innerHTML = '';
-    if (empty) empty.classList.remove('hidden');
-    return;
-  }
-  if (empty) empty.classList.add('hidden');
-
-  list.innerHTML = filtered.map(function(s) {
-    const cat = s.category || 'General';
-    return '<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--sf);border:1px solid var(--bd);border-radius:var(--rs);cursor:pointer;transition:all .2s" onclick="openSheet(\'' + s.id + '\')">' +
-      '<div style="width:36px;height:36px;border-radius:8px;background:rgba(99,102,241,.15);display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0">📊</div>' +
-      '<div style="flex:1;min-width:0">' +
-        '<div style="font-weight:600;font-size:.84rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + s.name + '</div>' +
-        '<div style="font-size:.68rem;color:var(--tx3);margin-top:1px">' + cat + (s.desc ? ' · ' + s.desc : '') + '</div>' +
-      '</div>' +
-      '<span style="font-size:1rem;opacity:.4;flex-shrink:0">↗️</span>' +
-    '</div>';
-  }).join('');
-}
-
-function openSheet(id) {
-  const s = sheets.find(function(x){ return x.id === id; });
-  if (!s || !s.url) { toast('No URL set for this sheet'); return; }
-  window.open(s.url, '_blank');
-}
-
-function openSheetsQuick() {
-  renderSheetsQuick();
-  document.getElementById('sheetsQuickModal').classList.remove('hidden');
-  const inp = document.getElementById('sheetQuickSearch');
-  if (inp) { inp.value = ''; setTimeout(function(){ inp.focus(); }, 200); }
-}
-
-function openAddSheetModal() {
-  document.getElementById('addSheetTitle').textContent = '📊 Add Google Sheet';
-  ['shName','shUrl','shCat','shDesc'].forEach(function(id){ const el=document.getElementById(id);if(el)el.value=''; });
-  document.getElementById('shEditId').value = '';
-  document.getElementById('addSheetModal').classList.remove('hidden');
-  setTimeout(function(){ const el=document.getElementById('shName');if(el)el.focus(); }, 200);
-}
-
-function editSheet(id) {
-  const s = sheets.find(function(x){ return x.id === id; });
-  if (!s) return;
-  document.getElementById('addSheetTitle').textContent = '✏️ Edit Sheet';
-  document.getElementById('shName').value = s.name;
-  document.getElementById('shUrl').value = s.url;
-  document.getElementById('shCat').value = s.category || '';
-  document.getElementById('shDesc').value = s.desc || '';
-  document.getElementById('shEditId').value = id;
-  document.getElementById('addSheetModal').classList.remove('hidden');
-}
-
-function saveSheet() {
-  const name = (document.getElementById('shName').value || '').trim();
-  const url  = (document.getElementById('shUrl').value  || '').trim();
-  if (!name) { toast('Please enter a sheet name!'); return; }
-  if (!url || !url.startsWith('http')) { toast('Please enter a valid URL!'); return; }
-  const cat  = (document.getElementById('shCat').value  || '').trim() || 'General';
-  const desc = (document.getElementById('shDesc').value || '').trim();
-  const editId = document.getElementById('shEditId').value;
-  const obj = {
-    id: editId || 'sh_' + Date.now(),
-    name, url, category: cat, desc,
-    addedBy: cu ? cu.name : 'Unknown',
-    addedAt: new Date().toISOString()
-  };
-  if (editId) {
-    const idx = sheets.findIndex(function(s){ return s.id === editId; });
-    if (idx >= 0) sheets[idx] = obj;
-  } else {
-    sheets.push(obj);
-  }
-  saveSheets();
-  closeM('addSheetModal');
-  renderSheets();
-  renderSheetsQuick();
-  toast('✅ Sheet saved!');
-}
-
-function deleteSheet(id) {
-  if (!confirm('Delete this sheet?')) return;
-  sheets = sheets.filter(function(s){ return s.id !== id; });
-  saveSheets();
-  renderSheets();
-  toast('Deleted');
-}
-
-function stringToColor(str) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  const colors = ['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#06b6d4','#ec4899','#14b8a6','#f97316','#3b82f6'];
-  return colors[Math.abs(hash) % colors.length];
-}
-
-
-
-
-// ═══════════════════════════════════════
-// AUTH v12 — REGISTER + LOGIN
-// Uses addEventListener only — no onclick in HTML
-// ═══════════════════════════════════════
-function getPasswords(){ return JSON.parse(localStorage.getItem('hb_passwords')||'{}'); }
-function savePasswords(o){ localStorage.setItem('hb_passwords',JSON.stringify(o)); }
-function hashPwd(raw){
-  var h=0,s='hb_'+raw+'_salt';
-  for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}
-  return 'p'+Math.abs(h).toString(36)+s.length;
-}
-function hashPassword(r){ return hashPwd(r); }
-
-function showAuthPanel(id){
-  ['authP0','authPReg','authPLogin'].forEach(function(p){
-    var el=document.getElementById(p);
-    if(!el)return;
-    el.classList[p===id?'remove':'add']('hidden');
-  });
-  var re=document.getElementById('regErr');if(re){re.textContent='';re.classList.remove('show');}
-  var le=document.getElementById('loginErr');if(le){le.textContent='';le.classList.remove('show');}
-}
-
-function showAuthErr(eid,msg){
-  var el=document.getElementById(eid);if(!el)return;
-  el.textContent=msg;el.classList.add('show');
-  setTimeout(function(){el.classList.remove('show');},4000);
-}
-
+// AUTH v12
+function getPasswords(){return JSON.parse(localStorage.getItem('hb_passwords')||'{}');}
+function savePasswords(o){localStorage.setItem('hb_passwords',JSON.stringify(o));}
+function getRecovery(){return JSON.parse(localStorage.getItem('hb_recovery')||'{}');}
+function saveRecovery(o){localStorage.setItem('hb_recovery',JSON.stringify(o));}
+function hashPwd(raw){var h=0,s='hb_'+raw+'_salt';for(var i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return 'p'+Math.abs(h).toString(36)+s.length;}
+function hashPassword(r){return hashPwd(r);}
+function showAuthPanel(id){['authP0','authPReg','authPLogin'].forEach(function(p){var el=document.getElementById(p);if(el)el.classList[p===id?'remove':'add']('hidden');});}
+function showAuthErr(eid,msg){var el=document.getElementById(eid);if(!el)return;el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show');},4000);}
 function doRegisterUser(){
   var name=(document.getElementById('rName').value||'').trim();
   var role=document.getElementById('rRole').value||'';
   var dept=document.getElementById('rDept').value||'Session Team';
   var pass=(document.getElementById('rPass').value||'').trim();
   var pass2=(document.getElementById('rPass2').value||'').trim();
-  if(!name){showAuthErr('regErr','Please enter your full name');return;}
-  if(!role){showAuthErr('regErr','Please select your role');return;}
-  if(pass.length<4){showAuthErr('regErr','Password must be at least 4 characters');return;}
+  if(!name){showAuthErr('regErr','Enter your full name');return;}
+  if(!role){showAuthErr('regErr','Select your role');return;}
+  if(pass.length<4){showAuthErr('regErr','Password min 4 characters');return;}
   if(pass!==pass2){showAuthErr('regErr','Passwords do not match');return;}
   var pwds=getPasswords();
   var existing=MEMBERS.find(function(m){return m.name.toLowerCase()===name.toLowerCase();});
-  if(existing&&pwds[name.toLowerCase()]){
-    showAuthErr('regErr','Name already registered — please Log In');return;
-  }
-  var RC={manager:{emoji:'👑',color:'#d97706',bg:'rgba(217,119,6,.15)',shift:'both',label:'Manager'},
-    teamlead:{emoji:'🌟',color:'#7c3aed',bg:'rgba(124,58,237,.15)',shift:'morning',label:'Team Lead'},
-    colead:{emoji:'⭐',color:'#0891b2',bg:'rgba(8,145,178,.15)',shift:'morning',label:'Co-Lead'},
-    executive:{emoji:'✨',color:'#6366f1',bg:'rgba(99,102,241,.15)',shift:'morning',label:'Executive'}};
+  if(existing&&pwds[name.toLowerCase()]){showAuthErr('regErr','Already registered, please Log In');return;}
+  var RC={manager:{emoji:'M',color:'#d97706',bg:'rgba(217,119,6,.15)',shift:'both',label:'Manager'},teamlead:{emoji:'TL',color:'#7c3aed',bg:'rgba(124,58,237,.15)',shift:'morning',label:'Team Lead'},colead:{emoji:'CL',color:'#0891b2',bg:'rgba(8,145,178,.15)',shift:'morning',label:'Co-Lead'},executive:{emoji:'EX',color:'#6366f1',bg:'rgba(99,102,241,.15)',shift:'morning',label:'Executive'}};
   var DS={'Session Team':'both','Morning Shift':'morning','Evening Shift':'evening'};
   var rc=RC[role]||RC.executive;
-  if(existing){
-    existing.role=rc.label;existing.emoji=rc.emoji;existing.color=rc.color;
-    existing.bg=rc.bg;existing.shift=DS[dept]||rc.shift;existing.roleKey=role;
-  } else {
-    MEMBERS.push({name:name,role:rc.label,emoji:rc.emoji,color:rc.color,
-      bg:rc.bg,shift:DS[dept]||rc.shift,roleKey:role});
-  }
+  if(existing){existing.role=rc.label;existing.emoji=rc.emoji;existing.color=rc.color;existing.bg=rc.bg;existing.shift=DS[dept]||rc.shift;existing.roleKey=role;}
+  else{MEMBERS.push({name:name,role:rc.label,emoji:rc.emoji,color:rc.color,bg:rc.bg,shift:DS[dept]||rc.shift,roleKey:role});}
   saveMembers();
   pwds[name.toLowerCase()]=hashPwd(pass);savePasswords(pwds);
-  toast('Welcome '+name+'! '+rc.emoji);
+  var rq=document.getElementById('rQ'),rqa=document.getElementById('rQA');
+  if(rq&&rq.value&&rqa&&rqa.value.trim()){var rec=getRecovery();rec[name.toLowerCase()]={q:rq.value,a:rqa.value.trim().toLowerCase()};saveRecovery(rec);}
+  toast('Welcome '+name+'!');
   setTimeout(function(){loginWith(name+'|'+rc.emoji+'|'+rc.color+'|'+role);},600);
 }
-
 function doLoginUser(){
   var username=(document.getElementById('lUser').value||'').trim();
   var password=(document.getElementById('lPass').value||'').trim();
-  if(!username){showAuthErr('loginErr','Please enter your username');return;}
-  if(!password){showAuthErr('loginErr','Please enter your password');return;}
+  if(!username){showAuthErr('loginErr','Enter your username');return;}
+  if(!password){showAuthErr('loginErr','Enter your password');return;}
   var pwds=getPasswords();var key=username.toLowerCase();
-  if(!pwds[key]){showAuthErr('loginErr','Username not found — please Register first');return;}
+  if(!pwds[key]){showAuthErr('loginErr','Username not found, please Register first');return;}
   if(pwds[key]!==hashPwd(password)){
-    showAuthErr('loginErr','Wrong password. Please try again.');
+    showAuthErr('loginErr','Wrong password');
     var inp=document.getElementById('lPass');
     if(inp){inp.style.borderColor='rgba(239,68,68,.6)';inp.value='';inp.focus();}
     setTimeout(function(){var i=document.getElementById('lPass');if(i)i.style.borderColor='';},1500);
-    var hint=document.getElementById('loginForgotHint');if(hint)hint.style.display='block';
     return;
   }
   var member=MEMBERS.find(function(m){return m.name.toLowerCase()===key;});
-  if(!member){showAuthErr('loginErr','Profile not found — please Register first');return;}
-  toast('Welcome back '+member.name+'! '+member.emoji);
-  setTimeout(function(){
-    loginWith(member.name+'|'+(member.emoji||'👤')+'|'+(member.color||'#6366f1')+'|'+(member.roleKey||'executive'));
-  },600);
+  if(!member){showAuthErr('loginErr','Profile not found, please Register first');return;}
+  toast('Welcome back '+member.name+'!');
+  setTimeout(function(){loginWith(member.name+'|'+(member.emoji||'?')+'|'+(member.color||'#6366f1')+'|'+(member.roleKey||'executive'));},600);
 }
-
+function openForgotPassword(){
+  var ex=document.getElementById('fPM');if(ex)ex.remove();
+  var qM={pet:"Pet name?",school:"School?",city:"City born?",mother:"Mother name?",fav:"Fav food?"};
+  var modal=document.createElement('div');modal.id='fPM';modal.className='modal-overlay';modal.style.zIndex='2000';
+  var h='<div class="modal-box" style="max-width:340px">'
+    +'<div class="modal-hdr"><span>Forgot Password</span><button class="modal-close" id="cFPM">X</button></div>'
+    +'<div class="fld"><label>Username</label><input class="fi" id="fpU" type="text" placeholder="Your name"/></div>'
+    +'<div id="fpQS" style="display:none"><div class="fld"><label id="fpQL">Question</label><input class="fi" id="fpA" type="text" placeholder="Answer"/></div>'
+    +'<div class="fld"><label>New Password</label><input class="fi" id="fpNP" type="password" placeholder="Min 4 chars"/></div></div>'
+    +'<div id="fpMH" style="display:none;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:10px;font-size:.72rem;color:#fde68a;margin-bottom:8px">Ask your Manager to reset your password.</div>'
+    +'<p id="fpE" style="color:var(--red);font-size:.72rem;min-height:14px"></p>'
+    +'<div style="display:flex;gap:8px"><button class="btn" id="cnFPM">Cancel</button><button class="btn bg" id="fpNB">Next</button></div></div>';
+  modal.innerHTML=h;document.body.appendChild(modal);
+  var step=1;
+  document.getElementById('cFPM').onclick=function(){modal.remove();};
+  document.getElementById('cnFPM').onclick=function(){modal.remove();};
+  document.getElementById('fpNB').onclick=function(){
+    var u=(document.getElementById('fpU').value||'').trim();
+    if(!u){document.getElementById('fpE').textContent='Enter username';return;}
+    var rec=getRecovery();var k=u.toLowerCase();
+    if(step===1){
+      if(!rec[k]||!rec[k].q){document.getElementById('fpMH').style.display='block';document.getElementById('fpNB').style.display='none';return;}
+      document.getElementById('fpQL').textContent=qM[rec[k].q]||rec[k].q;
+      document.getElementById('fpQS').style.display='block';document.getElementById('fpNB').textContent='Reset';step=2;return;
+    }
+    var ans=(document.getElementById('fpA').value||'').trim().toLowerCase();
+    var np=(document.getElementById('fpNP').value||'').trim();
+    if(!rec[k]||rec[k].a!==ans){document.getElementById('fpE').textContent='Wrong answer';return;}
+    if(np.length<4){document.getElementById('fpE').textContent='Min 4 chars';return;}
+    var pwds=getPasswords();pwds[k]=hashPwd(np);savePasswords(pwds);
+    modal.remove();toast('Password reset! Log in now.');
+  };
+}
 function authSetup(){
-  // Wire all buttons via addEventListener — no onclick needed in HTML
-  function wire(id,fn){ var el=document.getElementById(id);if(el)el.addEventListener('click',fn); }
-  wire('btnGoReg',   function(){ showAuthPanel('authPReg'); });
-  wire('btnGoLogin', function(){ showAuthPanel('authPLogin'); });
-  wire('btnRegBack', function(){ showAuthPanel('authP0'); });
-  wire('btnLoginBack',function(){ showAuthPanel('authP0'); });
-  wire('btnToLogin', function(){ showAuthPanel('authPLogin'); });
-  wire('btnToReg',   function(){ showAuthPanel('authPReg'); });
-  wire('btnDoRegister', doRegisterUser);
-  wire('btnDoLogin',    doLoginUser);
-  wire('btnTogRPass', function(){
-    var i=document.getElementById('rPass');if(!i)return;
-    i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁️':'🙈';
-  });
-  wire('btnTogLPass', function(){
-    var i=document.getElementById('lPass');if(!i)return;
-    i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'👁️':'🙈';
-  });
-  wire('btnResetData', function(){
-    if(confirm('Clear all data and reset?')){localStorage.clear();sessionStorage.clear();location.reload();}
-  });
-  // Enter key on login
+  function wire(id,fn){var el=document.getElementById(id);if(el)el.addEventListener('click',fn);}
+  wire('btnGoReg',function(){showAuthPanel('authPReg');});
+  wire('btnGoLogin',function(){showAuthPanel('authPLogin');});
+  wire('btnRegBack',function(){showAuthPanel('authP0');});
+  wire('btnLoginBack',function(){showAuthPanel('authP0');});
+  wire('btnToLogin',function(){showAuthPanel('authPLogin');});
+  wire('btnToReg',function(){showAuthPanel('authPReg');});
+  wire('btnDoRegister',doRegisterUser);
+  wire('btnDoLogin',doLoginUser);
+  wire('btnForgotPwd',openForgotPassword);
+  wire('btnHdrMenu',function(){if(typeof openSlideMenu==='function')openSlideMenu();});
+  wire('btnTogRPass',function(){var i=document.getElementById('rPass');if(!i)return;i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'show':'hide';});
+  wire('btnTogLPass',function(){var i=document.getElementById('lPass');if(!i)return;i.type=i.type==='password'?'text':'password';this.textContent=i.type==='password'?'show':'hide';});
+  wire('btnResetData',function(){if(confirm('Clear all data?')){localStorage.clear();sessionStorage.clear();location.reload();}});
   var lp=document.getElementById('lPass');if(lp)lp.addEventListener('keydown',function(e){if(e.key==='Enter')doLoginUser();});
-  var lu=document.getElementById('lUser');if(lu)lu.addEventListener('keydown',function(e){if(e.key==='Enter'){document.getElementById('lPass').focus();}});
-  // Show authP0 by default
   showAuthPanel('authP0');
 }
-
-// Password management functions
-function openSetPasswordModal(memberName){
-  var ex=document.getElementById('setPassModal');if(ex)ex.remove();
-  var modal=document.createElement('div');
-  modal.id='setPassModal';modal.className='modal-overlay';
-  modal.innerHTML='<div class="modal-box" style="max-width:340px">'+
-    '<div class="modal-hdr"><span>🔑 Reset Password — '+memberName+'</span>'+
-    '<button class="modal-close" id="closeSetPass">✕</button></div>'+
-    '<div style="font-size:.75rem;color:var(--tx3);margin-bottom:14px">Set a new password for <strong>'+memberName+'</strong></div>'+
-    '<div class="fld"><label>New Password</label><input class="fi" id="spNew" type="password" placeholder="Min 4 characters" maxlength="50"/></div>'+
-    '<div class="fld"><label>Confirm Password</label><input class="fi" id="spConf" type="password" placeholder="Repeat password" maxlength="50"/></div>'+
-    '<div style="display:flex;gap:8px;margin-top:14px">'+
-    '<button class="btn" id="cancelSetPass" style="flex:1">Cancel</button>'+
-    '<button class="btn bg" id="confirmSetPass" style="flex:2">✅ Save</button></div></div>';
-  document.body.appendChild(modal);
-  document.getElementById('closeSetPass').onclick=function(){modal.remove();};
-  document.getElementById('cancelSetPass').onclick=function(){modal.remove();};
-  document.getElementById('confirmSetPass').onclick=function(){savePwdFor(memberName);};
-  setTimeout(function(){var i=document.getElementById('spNew');if(i)i.focus();},150);
+function openSetPasswordModal(mn){
+  var ex=document.getElementById('sPMd');if(ex)ex.remove();
+  var m=document.createElement('div');m.id='sPMd';m.className='modal-overlay';
+  m.innerHTML='<div class="modal-box" style="max-width:320px"><div class="modal-hdr"><span>Set Password - '+mn+'</span><button class="modal-close" onclick="document.getElementById('sPMd').remove()">X</button></div><div class="fld"><label>New Password</label><input class="fi" id="spN" type="password" maxlength="50"/></div><div class="fld"><label>Confirm</label><input class="fi" id="spC" type="password" maxlength="50"/></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" onclick="document.getElementById('sPMd').remove()">Cancel</button><button class="btn bg" onclick="savePwdFor(''+mn+'')">Save</button></div></div>';
+  document.body.appendChild(m);
 }
 function savePwdFor(name){
-  var np=(document.getElementById('spNew').value||'').trim();
-  var cp=(document.getElementById('spConf').value||'').trim();
-  if(np.length<4){toast('Min 4 characters!');return;}
-  if(np!==cp){toast('Passwords do not match!');return;}
-  var pwds=getPasswords();pwds[name.toLowerCase()]=hashPwd(np);savePasswords(pwds);
-  var m=document.getElementById('setPassModal');if(m)m.remove();
-  toast('✅ Password set for '+name);
+  var np=(document.getElementById('spN').value||'').trim();
+  var cp=(document.getElementById('spC').value||'').trim();
+  if(np.length<4){toast('Min 4 chars!');return;}if(np!==cp){toast('No match!');return;}
+  var p=getPasswords();p[name.toLowerCase()]=hashPwd(np);savePasswords(p);
+  var m=document.getElementById('sPMd');if(m)m.remove();toast('Password set for '+name);
 }
 function savePasswordFor(n){savePwdFor(n);}
 function resetPasswordFor(name){
   if(!confirm('Remove password for '+name+'?'))return;
-  var pwds=getPasswords();delete pwds[name.toLowerCase()];savePasswords(pwds);
+  var p=getPasswords();delete p[name.toLowerCase()];savePasswords(p);
   toast('Password removed for '+name);renderTeamSetup();
 }
 function openChangePasswordModal(){
-  var ex=document.getElementById('chPassModal');if(ex)ex.remove();
-  var modal=document.createElement('div');
-  modal.id='chPassModal';modal.className='modal-overlay';
-  modal.innerHTML='<div class="modal-box" style="max-width:340px">'+
-    '<div class="modal-hdr"><span>🔑 Change My Password</span>'+
-    '<button class="modal-close" id="closeChPass">✕</button></div>'+
-    '<div class="fld"><label>Current Password</label><input class="fi" id="cpCur" type="password" placeholder="Current password" maxlength="50"/></div>'+
-    '<div class="fld"><label>New Password</label><input class="fi" id="cpNew" type="password" placeholder="Min 4 chars" maxlength="50"/></div>'+
-    '<div class="fld"><label>Confirm New</label><input class="fi" id="cpConf" type="password" placeholder="Repeat" maxlength="50"/></div>'+
-    '<div style="display:flex;gap:8px;margin-top:14px">'+
-    '<button class="btn" id="cancelChPass" style="flex:1">Cancel</button>'+
-    '<button class="btn bg" id="confirmChPass" style="flex:2">✅ Change</button></div></div>';
-  document.body.appendChild(modal);
-  document.getElementById('closeChPass').onclick=function(){modal.remove();};
-  document.getElementById('cancelChPass').onclick=function(){modal.remove();};
-  document.getElementById('confirmChPass').onclick=saveOwnPassword;
-  setTimeout(function(){var i=document.getElementById('cpCur');if(i)i.focus();},150);
+  var ex=document.getElementById('cPMd');if(ex)ex.remove();
+  var m=document.createElement('div');m.id='cPMd';m.className='modal-overlay';
+  m.innerHTML='<div class="modal-box" style="max-width:320px"><div class="modal-hdr"><span>Change Password</span><button class="modal-close" onclick="document.getElementById('cPMd').remove()">X</button></div><div class="fld"><label>Current</label><input class="fi" id="cpC" type="password" maxlength="50"/></div><div class="fld"><label>New</label><input class="fi" id="cpN" type="password" maxlength="50"/></div><div class="fld"><label>Confirm</label><input class="fi" id="cpCf" type="password" maxlength="50"/></div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" onclick="document.getElementById('cPMd').remove()">Cancel</button><button class="btn bg" onclick="saveOwnPassword()">Change</button></div></div>';
+  document.body.appendChild(m);
 }
 function saveOwnPassword(){
   if(!cu)return;
-  var cur=(document.getElementById('cpCur').value||'').trim();
-  var np=(document.getElementById('cpNew').value||'').trim();
-  var cp=(document.getElementById('cpConf').value||'').trim();
-  var pwds=getPasswords();var key=cu.name.toLowerCase();
-  if(!pwds[key]||pwds[key]!==hashPwd(cur)){toast('Current password is wrong!');return;}
-  if(np.length<4){toast('Min 4 characters!');return;}
-  if(np!==cp){toast('Passwords do not match!');return;}
-  pwds[key]=hashPwd(np);savePasswords(pwds);
-  var m=document.getElementById('chPassModal');if(m)m.remove();
-  toast('✅ Password changed!');
+  var cur=(document.getElementById('cpC').value||'').trim();
+  var np=(document.getElementById('cpN').value||'').trim();
+  var cf=(document.getElementById('cpCf').value||'').trim();
+  var p=getPasswords();var k=cu.name.toLowerCase();
+  if(!p[k]||p[k]!==hashPwd(cur)){toast('Wrong current password!');return;}
+  if(np.length<4){toast('Min 4 chars!');return;}if(np!==cf){toast('No match!');return;}
+  p[k]=hashPwd(np);savePasswords(p);var m=document.getElementById('cPMd');if(m)m.remove();toast('Password changed!');
 }
-
-// Stubs for removed functions
-function authSendOTP(){}function authVerifyOTP(){}function authGoBack(){}
-function authResendOTP(){}function otpIn(){}function on_(){}
-function showPassLogin(){}function showOtpLogin(){}
-function togglePassVis(){}function authPassLogin(){}function showPassErr(){}
-function authMainLogin(){}function toggleMainPassVis(){}function showMainErr(){}
-function resetAppData(){}
-function toggleVis(){}
-
-// Init auth buttons when DOM ready
-document.addEventListener('DOMContentLoaded', function(){
-  authSetup();
-});
+var GSHEET_URL='https://script.google.com/macros/s/AKfycby6R-aLQYhUAoLcrTqfG-8sp5vrbNJxIO53hCnKFKE5H5XOTJhtzagOlvBhN0aHeFG1/exec';
+var _sq=[],_sy=false;
+function gsSyncTask(a,t){if(!GSHEET_URL)return;_sq.push({action:a,id:t.id||'',title:t.title||'',assignee:t.assignee||'',type:t.type||'daily',priority:t.priority||'medium',status:a==='update'?(t.done?'Done':'Pending'):'Pending',date:t.date||tds(),createdBy:cu?cu.name:'',createdAt:new Date().toISOString()});_gsp();}
+function _gsp(){if(_sy||!_sq.length)return;_sy=true;var p=_sq.shift();fetch(GSHEET_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)}).then(function(){_sy=false;_gsp();}).catch(function(){_sy=false;});}
+function syncAllTasksToSheets(){if(!tasks||!tasks.length){toast('No tasks!');return;}toast('Syncing...');tasks.forEach(function(t,i){setTimeout(function(){gsSyncTask('add',t);},i*100);});}
+function authSendOTP(){}function authVerifyOTP(){}function authGoBack(){}function authResendOTP(){}
+function otpIn(){}function on_(){}function sendFirebaseOTP(){}function verFirebaseOTP(){}
+function showPassLogin(){}
+function showOtpLogin(){}function togglePassVis(){}function authPassLogin(){}
+function showPassErr(){}function authMainLogin(){}function toggleMainPassVis(){}
+function showMainErr(){}function sendOTP(){}function verOTP(){}function bkPhone(){}
+function resendWAOTP(){}
+function toggleVis(){}function resetAppData(){}
+document.addEventListener('DOMContentLoaded',function(){authSetup();});
 
 </script>
 </head>
@@ -2374,132 +1861,63 @@ document.addEventListener('DOMContentLoaded', function(){
 <!-- ══ LOGIN ══ -->
 <div id="loginScreen">
   <div class="auth-wrap">
-    <div class="auth-left">
-      <div class="auth-left-inner">
-        <div class="auth-brand-icon">🧘🏻‍♂️</div>
-        <h1 class="auth-brand-name">Habuild<br>To Do</h1>
-        <p class="auth-brand-tagline">Team Task &amp; Session Manager</p>
-        <div class="auth-brand-dots"><span></span><span></span><span></span></div>
-        <div style="margin-top:32px;display:flex;flex-direction:column;gap:12px">
-          <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.6);font-size:.78rem"><span style="width:30px;height:30px;background:rgba(99,102,241,.25);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">⏰</span>5-min task reminders</div>
-          <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.6);font-size:.78rem"><span style="width:30px;height:30px;background:rgba(16,185,129,.25);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">📊</span>50+ Google Sheets library</div>
-          <div style="display:flex;align-items:center;gap:10px;color:rgba(255,255,255,.6);font-size:.78rem"><span style="width:30px;height:30px;background:rgba(245,158,11,.25);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0">👥</span>Full team task management</div>
-        </div>
+    <div class="auth-left"><div class="auth-left-inner">
+      <div class="auth-brand-icon">&#x1F9D8;&#x1F3FB;&#x200D;&#x2642;&#xFE0F;</div>
+      <h1 class="auth-brand-name">Habuild<br>To Do</h1>
+      <p class="auth-brand-tagline">Team Task &amp; Session Manager</p>
+    </div></div>
+    <div class="auth-right"><div class="auth-form-wrap">
+      <div id="authP0">
+        <div style="text-align:center;margin-bottom:24px"><h2 class="auth-form-title" style="text-align:center">Welcome!</h2><p class="auth-form-sub" style="text-align:center">What would you like to do?</p></div>
+        <button class="auth-btn" id="btnGoReg" style="margin-bottom:12px">&#x1F195; New User — Register</button>
+        <button class="auth-btn auth-btn-outline" id="btnGoLogin">&#x1F511; Already have account — Log In</button>
+        <div style="text-align:center;margin-top:14px"><a id="btnResetData" style="font-size:.68rem;color:rgba(255,255,255,.2);cursor:pointer;text-decoration:underline">Reset app data</a></div>
       </div>
-    </div>
-    <div class="auth-right">
-      <div class="auth-form-wrap">
-        <!-- WELCOME -->
-        <div id="authP0">
-          <div style="text-align:center;margin-bottom:32px">
-            <div style="font-size:2.8rem;margin-bottom:8px">👋</div>
-            <h2 class="auth-form-title" style="text-align:center">Welcome!</h2>
-            <p class="auth-form-sub" style="text-align:center">What would you like to do?</p>
-          </div>
-          <button class="auth-btn" id="btnGoReg" style="margin-bottom:12px">🆕 New User — Register</button>
-          <button class="auth-btn auth-btn-outline" id="btnGoLogin">🔑 Already have account — Log In</button>
-          <div style="text-align:center;margin-top:20px">
-            <a id="btnResetData" style="font-size:.7rem;color:rgba(255,255,255,.2);cursor:pointer;text-decoration:underline">Reset app data</a>
-          </div>
+      <div id="authPReg" class="hidden">
+        <button class="auth-back-btn" id="btnRegBack">&#x2190; Back</button>
+        <h2 class="auth-form-title">Create Account</h2>
+        <div id="regErr" class="auth-error"></div>
+        <div class="auth-field"><label>Full Name</label><input class="auth-input" id="rName" type="text" placeholder="e.g. Rahul Sharma" maxlength="40"/></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="auth-field"><label>Role</label><select class="auth-input" id="rRole"><option value="">Select</option><option value="manager">Manager</option><option value="teamlead">Team Lead</option><option value="colead">Co-Lead</option><option value="executive">Executive</option></select></div>
+          <div class="auth-field"><label>Dept</label><select class="auth-input" id="rDept"><option value="Session Team">Session Team</option><option value="Morning Shift">Morning</option><option value="Evening Shift">Evening</option></select></div>
         </div>
-        <!-- REGISTER -->
-        <div id="authPReg" class="hidden">
-          <button class="auth-back-btn" id="btnRegBack">← Back</button>
-          <h2 class="auth-form-title">Create Account 🆕</h2>
-          <p class="auth-form-sub">Fill in your details to register</p>
-          <div id="regErr" class="auth-error"></div>
-          <div class="auth-field">
-            <label>Full Name</label>
-            <input class="auth-input" id="rName" type="text" placeholder="e.g. Rahul Sharma" maxlength="40"/>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <div class="auth-field">
-              <label>Role</label>
-              <select class="auth-input" id="rRole">
-                <option value="">— Select —</option>
-                <option value="manager">👑 Manager</option>
-                <option value="teamlead">🌟 Team Lead</option>
-                <option value="colead">⭐ Co-Lead</option>
-                <option value="executive">✨ Executive</option>
-              </select>
-            </div>
-            <div class="auth-field">
-              <label>Department</label>
-              <select class="auth-input" id="rDept">
-                <option value="Session Team">Session Team</option>
-                <option value="Morning Shift">Morning Shift</option>
-                <option value="Evening Shift">Evening Shift</option>
-              </select>
-            </div>
-          </div>
-          <div class="auth-field">
-            <label>Set Password</label>
-            <div style="position:relative">
-              <input class="auth-input" id="rPass" type="password" placeholder="Min 4 characters" maxlength="50" style="padding-right:44px"/>
-              <button id="btnTogRPass" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;font-size:1rem;padding:0">👁️</button>
-            </div>
-          </div>
-          <div class="auth-field">
-            <label>Confirm Password</label>
-            <input class="auth-input" id="rPass2" type="password" placeholder="Repeat password" maxlength="50"/>
-          </div>
-          <button class="auth-btn" id="btnDoRegister" style="margin-top:4px">✅ Register &amp; Enter App</button>
-          <div style="text-align:center;margin-top:16px;font-size:.75rem;color:rgba(255,255,255,.35)">Already registered? <a id="btnToLogin" style="color:#a5b4fc;cursor:pointer;font-weight:600">Log In</a></div>
-        </div>
-        <!-- LOGIN -->
-        <div id="authPLogin" class="hidden">
-          <button class="auth-back-btn" id="btnLoginBack">← Back</button>
-          <h2 class="auth-form-title">Log In 🔑</h2>
-          <p class="auth-form-sub">Enter your username and password</p>
-          <div id="loginErr" class="auth-error"></div>
-          <div class="auth-field">
-            <label>Username <span style="opacity:.5;font-weight:400">(your registered name)</span></label>
-            <input class="auth-input" id="lUser" type="text" placeholder="e.g. Rahul Sharma" maxlength="40"/>
-          </div>
-          <div class="auth-field">
-            <label>Password</label>
-            <div style="position:relative">
-              <input class="auth-input" id="lPass" type="password" placeholder="Your password" maxlength="50" style="padding-right:44px"/>
-              <button id="btnTogLPass" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;font-size:1rem;padding:0">👁️</button>
-            </div>
-          </div>
-          <button class="auth-btn" id="btnDoLogin" style="margin-top:4px">Log In →</button>
-          <div style="text-align:center;margin-top:16px;font-size:.75rem;color:rgba(255,255,255,.35)">New here? <a id="btnToReg" style="color:#a5b4fc;cursor:pointer;font-weight:600">Register</a></div>
-          <div id="loginForgotHint" style="display:none;margin-top:14px;background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.18);border-radius:10px;padding:11px 14px;font-size:.73rem;color:rgba(165,180,252,.85);line-height:1.6">💡 Forgot password? Ask your <strong>Manager</strong> to reset it from Team Setup.</div>
-        </div>
+        <div class="auth-field"><label>Password</label><div style="position:relative"><input class="auth-input" id="rPass" type="password" placeholder="Min 4 chars" maxlength="50" style="padding-right:44px"/><button id="btnTogRPass" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:.75rem">show</button></div></div>
+        <div class="auth-field"><label>Confirm Password</label><input class="auth-input" id="rPass2" type="password" placeholder="Repeat" maxlength="50"/></div>
+        <div class="auth-field"><label>Recovery Question</label><select class="auth-input" id="rQ"><option value="">Choose question</option><option value="pet">Pet name?</option><option value="school">School attended?</option><option value="city">City born in?</option><option value="mother">Mother first name?</option><option value="fav">Favourite food?</option></select></div>
+        <div class="auth-field"><label>Answer</label><input class="auth-input" id="rQA" type="text" placeholder="Your answer" maxlength="40"/></div>
+        <button class="auth-btn" id="btnDoRegister" style="margin-top:4px">&#x2705; Register &amp; Enter App</button>
+        <div style="text-align:center;margin-top:10px;font-size:.74rem;color:rgba(255,255,255,.35)">Already registered? <a id="btnToLogin" style="color:#a5b4fc;cursor:pointer;font-weight:600">Log In</a></div>
       </div>
-    </div>
+      <div id="authPLogin" class="hidden">
+        <button class="auth-back-btn" id="btnLoginBack">&#x2190; Back</button>
+        <h2 class="auth-form-title">Log In &#x1F511;</h2>
+        <div id="loginErr" class="auth-error"></div>
+        <div class="auth-field"><label>Username</label><input class="auth-input" id="lUser" type="text" placeholder="Your registered name" maxlength="40"/></div>
+        <div class="auth-field"><label>Password</label><div style="position:relative"><input class="auth-input" id="lPass" type="password" placeholder="Your password" maxlength="50" style="padding-right:44px"/><button id="btnTogLPass" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:.75rem">show</button></div></div>
+        <button class="auth-btn" id="btnDoLogin" style="margin-top:4px">Log In &#x2192;</button>
+        <div style="text-align:center;margin-top:8px"><a id="btnForgotPwd" style="font-size:.74rem;color:rgba(165,180,252,.5);cursor:pointer;text-decoration:underline">Forgot password?</a></div>
+        <div style="text-align:center;margin-top:6px;font-size:.74rem;color:rgba(255,255,255,.35)">New here? <a id="btnToReg" style="color:#a5b4fc;cursor:pointer;font-weight:600">Register</a></div>
+      </div>
+    </div></div>
   </div>
 </div>
-
 <!-- ══ APP ══ -->
 <div id="appScreen">
   <header class="hdr">
     <div class="hdr-i">
-      <!-- Logo + App Name -->
-      <div class="logo" style="flex-shrink:0">
-        <div class="lm">🧘🏻‍♂️</div>
-        <div>
+      <button class="hdr-left-btn" id="btnHdrMenu">
+        <span style="font-size:22px;line-height:1;flex-shrink:0">&#x1F9D8;&#x1F3FB;&#x200D;&#x2642;&#xFE0F;</span>
+        <div style="display:flex;flex-direction:column;gap:1px">
           <div class="ln">Habuild To Do</div>
-          <span class="ls2" id="roleLabel" style="display:block;max-width:110px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">—</span>
+          <div style="font-size:.7rem;font-weight:600;color:var(--brand);line-height:1.2" id="uname">--</div>
+          <span class="ls2" id="roleLabel" style="font-size:.58rem;color:var(--tx3);line-height:1.2">--</span>
         </div>
-      </div>
-      <!-- Date — center -->
-      <div id="hdate" style="display:flex;flex-direction:column;align-items:center;text-align:center;line-height:1.4;flex:1;padding:0 4px">—</div>
-      <!-- Right controls -->
-      <div class="hr" style="flex-shrink:0;gap:6px">
-        <div style="position:relative">
-          <button class="ib" id="bellBtn" onclick="toggleNotif()"><span id="bicon">🔔</span></button>
-          <span class="bbadge hidden" id="bbadge">0</span>
-        </div>
-        <div class="upill" style="gap:4px">
-          <div class="uav" id="uav">?</div>
-          <span class="uname" id="uname">—</span>
-          <span class="role-badge" id="roleTag">—</span>
-        </div>
-        <button class="three-dot-btn" onclick="openSlideMenu()" title="Menu" aria-label="Open menu">
-          <span></span><span></span><span></span>
-        </button>
+      </button>
+      <div id="hdate" style="display:flex;flex-direction:column;align-items:center;text-align:center;line-height:1.35;flex:1;padding:0 4px">--</div>
+      <div style="flex-shrink:0;display:flex;align-items:center;gap:4px">
+        <span class="role-badge" id="roleTag">--</span>
+        <div style="position:relative"><button class="ib" id="bellBtn" onclick="toggleNotif()"><span id="bicon">&#x1F514;</span></button><span class="bbadge hidden" id="bbadge">0</span></div>
       </div>
     </div>
     <div class="dnav"><div class="dnav-i" id="dayNav"></div></div>
@@ -3189,24 +2607,17 @@ function loginWith(str){
   const[name,emoji,color,role]=str.split('|');
   cu={name,emoji,color,role};
   localStorage.setItem('yf6_user',JSON.stringify(cu));
-  // Fully hide login screen — remove from layout completely
-  var ls=document.getElementById('loginScreen');
-  if(ls){ls.style.display='none';ls.style.visibility='hidden';ls.style.pointerEvents='none';}
-  // Blur any focused input to remove blue border bleed
+  var ls=document.getElementById('loginScreen');if(ls){ls.style.display='none';ls.style.visibility='hidden';}
   if(document.activeElement)document.activeElement.blur();
   document.getElementById('appScreen').style.display='block';
   initApp();
-}
-function logout(){
-  localStorage.removeItem('yf6_user'); cu=null;
-  document.getElementById('loginScreen').style.display='flex';
-  document.getElementById('appScreen').style.display='none';
-  var mv=document.getElementById('mgrView');if(mv)mv.classList.add('hidden');
-  var ev=document.getElementById('memView');if(ev)ev.classList.add('hidden');
-  var xv=document.getElementById('execView');if(xv)xv.classList.add('hidden');
-  authSetup();
-}
-(function(){const s=localStorage.getItem('yf6_user');if(s){cu=JSON.parse(s);document.getElementById('loginScreen').style.display='none';document.getElementById('appScreen').style.display='block';initApp();}})();
+}function logout(){
+  localStorage.removeItem('yf6_user');cu=null;
+  var ls=document.getElementById('loginScreen');if(ls){ls.style.display='flex';ls.style.visibility='visible';}
+  var as=document.getElementById('appScreen');if(as)as.style.display='none';
+  ['mgrView','memView','execView'].forEach(function(v){var el=document.getElementById(v);if(el)el.classList.add('hidden');});
+  showAuthPanel('authP0');
+}(function(){const s=localStorage.getItem('yf6_user');if(s){cu=JSON.parse(s);document.getElementById('loginScreen').style.display='none';document.getElementById('appScreen').style.display='block';initApp();}})();
 
 // ═══════════════════════════════════════
 // INIT
@@ -3216,11 +2627,9 @@ function initApp(){
   populateLoginDropdown();
   aday=todayI;
   const m=gm(cu.name);
-  document.getElementById('uname').textContent=cu.name;
+  var _un=document.getElementById('uname');if(_un)_un.textContent=cu.name;
   const av=document.getElementById('uav');av.textContent=cu.emoji;av.style.background=cu.color+'22';av.style.color=cu.color;
-  var _now=new Date();
-  var _hd=document.getElementById('hdate');
-  if(_hd)_hd.innerHTML='<strong style="font-size:.82rem;color:var(--tx)">'+_now.toLocaleDateString('en-IN',{weekday:'long'})+'</strong><span style="font-size:.72rem;color:var(--tx3)">'+_now.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})+'</span>';
+  var _hd=document.getElementById('hdate');if(_hd){var _n=new Date();_hd.innerHTML='<strong style="font-size:.8rem">'+_n.toLocaleDateString('en-IN',{weekday:'long'})+'</strong><span style="font-size:.66rem;color:var(--tx3)">'+_n.toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})+'</span>';}
   const isM=cu.role==='manager';
   const isLead=cu.role==='teamlead';
   const isColead=cu.role==='colead';
@@ -3662,7 +3071,7 @@ function selCal(ds,di){
   document.getElementById('csbBody').innerHTML=h||`<div class="empty-s"><div class="ei">🌿</div><p>No tasks</p></div>`;
 }
 function openCalAdd(ds){document.getElementById('calAddTitle').textContent=`Add Task — ${new Date(ds+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short'})}`;document.getElementById('calAddM').dataset.date=ds;document.getElementById('calAddM').classList.remove('hidden');}
-function addCalTask(){const title=document.getElementById('caT').value.trim();if(!title){toast('Enter a title!');return;}const ds=document.getElementById('calAddM').dataset.date;var _ct={id:nid(),title,assignee:document.getElementById('caA').value,priority:document.getElementById('caP').value,startTime:document.getElementById('caS').value,endTime:document.getElementById('caE').value,notes:document.getElementById('caN').value.trim(),days:[],category:'Calendar Task',type:'cal',calDate:ds,done:{},reassignedFrom:null,created:Date.now()};tasks.push(_ct);gsSyncTask('add',_ct);sv();closeM('calAddM');renderCal();if(calSel===ds){const d=new Date(ds+'T00:00:00');selCal(ds,d.getDay()===0?6:d.getDay()-1);}toast('📅 Added to calendar!');['caT','caN','caS','caE'].forEach(id=>document.getElementById(id).value='');}
+function addCalTask(){const title=document.getElementById('caT').value.trim();if(!title){toast('Enter a title!');return;}const ds=document.getElementById('calAddM').dataset.date;tasks.push({id:nid(),title,assignee:document.getElementById('caA').value,priority:document.getElementById('caP').value,startTime:document.getElementById('caS').value,endTime:document.getElementById('caE').value,notes:document.getElementById('caN').value.trim(),days:[],category:'Calendar Task',type:'cal',calDate:ds,done:{},reassignedFrom:null,created:Date.now()});sv();closeM('calAddM');renderCal();if(calSel===ds){const d=new Date(ds+'T00:00:00');selCal(ds,d.getDay()===0?6:d.getDay()-1);}toast('📅 Added to calendar!');['caT','caN','caS','caE'].forEach(id=>document.getElementById(id).value='');}
 function chMon(d){calM+=d;if(calM>11){calM=0;calY++;}else if(calM<0){calM=11;calY--;}renderCal();}
 function goToday(){calY=new Date().getFullYear();calM=new Date().getMonth();renderCal();}
 
@@ -3673,12 +3082,12 @@ function addTask(type){
   const title=document.getElementById('inT').value.trim();if(!title){toast('⚠️ Enter a task title!');return;}
   const sel=document.getElementById('inD');const days=type==='extra'?[]:Array.from(sel.selectedOptions).map(o=>+o.value);
   if(type==='daily'&&!days.length){toast('⚠️ Select at least one day!');return;}
-  var _nt={id:nid(),title,assignee:document.getElementById('inA').value,priority:document.getElementById('inP').value,startTime:document.getElementById('inSt').value,endTime:document.getElementById('inEt').value,days,category:document.getElementById('inC').value,notes:document.getElementById('inN').value.trim(),type,done:{},reassignedFrom:null,calDate:null,created:Date.now()};tasks.push(_nt);gsSyncTask('add',_nt);
+  var _nt={id:nid(),title,assignee:document.getElementById('inA').value,priority:document.getElementById('inP').value,startTime:document.getElementById('inSt').value,endTime:document.getElementById('inEt').value,days,category:document.getElementById('inC').value,notes:document.getElementById('inN').value.trim(),type,done:{},reassignedFrom:null,calDate:null,created:Date.now()};tasks.push(_nt);if(typeof gsSyncTask==='function')gsSyncTask('add',_nt);
   sv();renderAll();clearForm();toast(type==='extra'?'⚡ Extra task added!':'📅 Task added!');
   if(type==='extra')setTimeout(()=>{buildNotif();if(!notifOpen)ringBell();},300);
 }
 function clearForm(){['inT','inN','inSt','inEt'].forEach(id=>document.getElementById(id).value='');document.getElementById('inP').value='medium';Array.from(document.getElementById('inD').options).forEach(o=>o.selected=false);}
-function toggleDone(id,mode){ var _td=tasks.find(function(t){return t.id===id;});if(_td)setTimeout(function(){gsSyncTask("update",_td);},100);
+function toggleDone(id,mode){
   const t=tasks.find(x=>x.id===id);if(!t)return;
   if(!t.done)t.done={};
   const k=mode==='extra'?'extra':mode==='cal'?'cal_'+t.calDate:dk();
@@ -4062,7 +3471,7 @@ function execAddTask(){
   const days=Array.from(sel.selectedOptions).map(o=>+o.value);
   if(!days.length){toast('⚠️ Select at least one day!');return;}
   // Force assignee = current executive (cannot change)
-  var _et={
+  tasks.push({
     id:nid(),title,
     assignee:cu.name,   // ← always locked to self
     priority:document.getElementById('execInP').value,
@@ -4073,7 +3482,7 @@ function execAddTask(){
     notes:document.getElementById('execInN').value.trim(),
     type:'daily',done:{},reassignedFrom:null,calDate:null,
     createdBy:cu.name,created:Date.now()
-  };tasks.push(_et);gsSyncTask("add",_et);
+  });
   sv();renderAll();execClearForm();
   toast('📅 Task added to your schedule!');
 }
@@ -5530,7 +4939,7 @@ function applyTemplate(id){
     const exists=tasks.find(x=>x.title===snap.title&&x.type==='daily'&&x.days&&x.days.includes(aday));
     if(!exists){
       const newT={id:Date.now()+Math.random(),type:'daily',title:snap.title,assignee:snap.assignee,priority:snap.priority||'medium',category:snap.category||'Daily Routine',startTime:snap.startTime||'',endTime:snap.endTime||'',notes:snap.notes||'',days:[aday],done:{},createdBy:cu?cu.name:'Manager',createdAt:Date.now()};
-      tasks.push(newT);gsSyncTask("add",newT); added++;
+      tasks.push(newT); added++;
     }
   });
   sv(); renderAll(); mTab('daily',document.querySelector('#mgrPills .np'));
@@ -6045,133 +5454,7 @@ function bkPhone(){}
 function gLogin(){}
 function sendWAOTP(){sendFirebaseOTP();}
 function verWAOTP(){verFirebaseOTP();}
-function resendWAOTP(){resendFirebaseOTP();}
 
-
-// ═══════════════════════════════════════
-// GOOGLE SHEETS SYNC
-// ═══════════════════════════════════════
-var GSHEET_URL = 'https://script.google.com/macros/s/AKfycbyTjtugpi-ksTlHrf7NGI3cNb9SM1zvIDn0PU2W22mvXpuus7QFsJN-DLDEUP-KYZcj/exec';
-var syncQueue = [];
-var isSyncing = false;
-
-function gsSyncTask(action, task) {
-  if (!GSHEET_URL) return;
-  var payload = {
-    action: action,
-    id: task.id || '',
-    title: task.title || '',
-    assignee: task.assignee || '',
-    type: task.type || 'daily',
-    priority: task.priority || 'medium',
-    status: action === 'update' ? (task.done ? 'Done' : 'Pending') : 'Pending',
-    date: task.date || tds(),
-    createdBy: cu ? cu.name : 'Unknown',
-    createdAt: new Date().toISOString()
-  };
-  syncQueue.push(payload);
-  processSyncQueue();
-}
-
-function processSyncQueue() {
-  if (isSyncing || syncQueue.length === 0) return;
-  isSyncing = true;
-  var payload = syncQueue.shift();
-  fetch(GSHEET_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  })
-  .then(function() {
-    isSyncing = false;
-    showSyncIndicator('✅ Synced');
-    processSyncQueue();
-  })
-  .catch(function(err) {
-    isSyncing = false;
-    console.warn('Sync failed:', err);
-    showSyncIndicator('⚠️ Sync failed');
-  });
-}
-
-function showSyncIndicator(msg) {
-  var el = document.getElementById('syncIndicator');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'syncIndicator';
-    el.style.cssText = 'position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(16,185,129,.92);color:#fff;padding:6px 16px;border-radius:20px;font-size:.72rem;font-weight:600;z-index:9999;transition:opacity .4s;pointer-events:none;backdrop-filter:blur(8px)';
-    document.body.appendChild(el);
-  }
-  el.textContent = msg;
-  el.style.opacity = '1';
-  clearTimeout(el._t);
-  el._t = setTimeout(function(){ el.style.opacity = '0'; }, 2500);
-}
-
-// Export all tasks to Google Sheets (bulk sync)
-function syncAllTasksToSheets() {
-  if (!tasks || tasks.length === 0) { toast('No tasks to sync!'); return; }
-  toast('Syncing ' + tasks.length + ' tasks to Google Sheets...');
-  var count = 0;
-  tasks.forEach(function(task) {
-    setTimeout(function() {
-      gsSyncTask('add', task);
-      count++;
-      if (count === tasks.length) toast('✅ All tasks synced!');
-    }, count * 120);
-  });
-}
-
-// Update Google Sheets URL (from settings)
-function updateSheetsURL(newUrl) {
-  if (!newUrl || !newUrl.includes('script.google.com')) {
-    toast('Invalid URL!'); return;
-  }
-  GSHEET_URL = newUrl;
-  localStorage.setItem('hb_gsheet_url', newUrl);
-  toast('✅ Google Sheets URL updated!');
-}
-
-// Load saved URL on startup
-(function() {
-  var saved = localStorage.getItem('hb_gsheet_url');
-  if (saved) GSHEET_URL = saved;
-})();
-
-
-function openSheetsSyncSettings(){
-  var ex=document.getElementById('sheetsSyncModal');if(ex)ex.remove();
-  var modal=document.createElement('div');
-  modal.id='sheetsSyncModal';modal.className='modal-overlay';
-  modal.innerHTML='<div class="modal-box" style="max-width:380px">'+
-    '<div class="modal-hdr"><span>📊 Google Sheets Sync</span>'+
-    '<button class="modal-close" id="closeSheetsSync">✕</button></div>'+
-    '<div style="font-size:.75rem;color:var(--tx3);margin-bottom:12px">Paste your Google Apps Script Web App URL below</div>'+
-    '<div class="fld"><label>Web App URL</label>'+
-    '<input class="fi" id="gsUrlInput" type="text" placeholder="https://script.google.com/macros/s/..." style="font-size:.7rem"/>'+
-    '</div>'+
-    '<div style="font-size:.7rem;color:var(--tx3);margin-bottom:12px">Current: <span style="color:var(--brand);word-break:break-all" id="gsCurrentUrl"></span></div>'+
-    '<div style="display:flex;gap:8px;margin-top:8px">'+
-    '<button class="btn" id="cancelSheetsSync" style="flex:1">Cancel</button>'+
-    '<button class="btn bg" id="saveSheetsSync" style="flex:2">✅ Save URL</button></div>'+
-    '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--bd)">'+
-    '<button class="btn" id="syncAllBtn" style="width:100%;background:rgba(16,185,129,.1);border-color:rgba(16,185,129,.3);color:#10b981">📤 Sync All Tasks Now ('+tasks.length+' tasks)</button>'+
-    '</div></div>';
-  document.body.appendChild(modal);
-  var cur=document.getElementById('gsCurrentUrl');
-  if(cur)cur.textContent=GSHEET_URL||'Not set';
-  document.getElementById('closeSheetsSync').onclick=function(){modal.remove();};
-  document.getElementById('cancelSheetsSync').onclick=function(){modal.remove();};
-  document.getElementById('saveSheetsSync').onclick=function(){
-    var url=(document.getElementById('gsUrlInput').value||'').trim();
-    updateSheetsURL(url);modal.remove();
-  };
-  document.getElementById('syncAllBtn').onclick=function(){
-    modal.remove();syncAllTasksToSheets();
-  };
-  setTimeout(function(){var i=document.getElementById('gsUrlInput');if(i)i.focus();},150);
-}
 
 </script>
 
