@@ -1907,8 +1907,8 @@ function doRegisterUser(){
   var name=(document.getElementById('rName').value||'').trim();
   var role=document.getElementById('rRole').value||'';
   var dept=document.getElementById('rDept').value||'Session Team';
-  var pass=(document.getElementById('rPass').value||'').trim();
-  var pass2=(document.getElementById('rPass2').value||'').trim();
+  var pass=(document.getElementById('rPass').value||'');
+  var pass2=(document.getElementById('rPass2').value||'');
   if(!name){showAuthErr('regErr','Enter your full name');return;}
   if(!role){showAuthErr('regErr','Select your role');return;}
   if(pass.length<4){showAuthErr('regErr','Password min 4 characters');return;}
@@ -1930,7 +1930,7 @@ function doRegisterUser(){
 }
 function doLoginUser(){
   var username=(document.getElementById('lUser').value||'').trim();
-  var password=(document.getElementById('lPass').value||'').trim();
+  var password=(document.getElementById('lPass').value||'');
   if(!username){showAuthErr('loginErr','Enter your username');return;}
   if(!password){showAuthErr('loginErr','Enter your password');return;}
   var pwds=getPasswords();var key=username.toLowerCase();
@@ -3221,17 +3221,36 @@ function loginWith(str){
   const[name,emoji,color,role]=str.split('|');
   cu={name,emoji,color,role};
   localStorage.setItem('yf6_user',JSON.stringify(cu));
-  var ls=document.getElementById('loginScreen');if(ls){ls.style.display='none';ls.style.visibility='hidden';}
+  var ls=document.getElementById('loginScreen');
+  if(ls){ls.style.display='none';ls.style.visibility='hidden';}
   if(document.activeElement)document.activeElement.blur();
-  document.getElementById('appScreen').style.display='block';
+  var as=document.getElementById('appScreen');
+  if(!as){setTimeout(function(){loginWith(str);},100);return;}
+  as.style.display='block';
   initApp();
-}function logout(){
+}
+
+function logout(){
   localStorage.removeItem('yf6_user');cu=null;
-  var ls=document.getElementById('loginScreen');if(ls){ls.style.display='flex';ls.style.visibility='visible';}
+  var ls=document.getElementById('loginScreen');
+  if(ls){ls.style.display='flex';ls.style.visibility='visible';}
   var as=document.getElementById('appScreen');if(as)as.style.display='none';
   ['mgrView','memView','execView'].forEach(function(v){var el=document.getElementById(v);if(el)el.classList.add('hidden');});
   showAuthPanel('authP0');
-}(function(){const s=localStorage.getItem('yf6_user');if(s){cu=JSON.parse(s);document.getElementById('loginScreen').style.display='none';document.getElementById('appScreen').style.display='block';initApp();}})();
+}
+
+// Auto-login if session exists
+(function(){
+  const s=localStorage.getItem('yf6_user');
+  if(s){
+    cu=JSON.parse(s);
+    var ls=document.getElementById('loginScreen');
+    var as=document.getElementById('appScreen');
+    if(ls)ls.style.display='none';
+    if(as)as.style.display='block';
+    initApp();
+  }
+})();
 
 // ═══════════════════════════════════════
 // INIT
