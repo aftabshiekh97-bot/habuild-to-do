@@ -1581,6 +1581,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 <!-- Firebase removed — using Username+Password auth -->
 <script>
 
+// Safe shims — real versions load later in body script
+function toast(msg){
+  var el=document.getElementById('toastEl');
+  if(el){el.textContent=msg;el.classList.add('show');setTimeout(function(){el.classList.remove('show');},3000);}
+  else{console.log('Toast:',msg);}
+}
+// MEMBERS will be set by body script; auth functions access it via window.MEMBERS safely
+function _getMembers(){return window.MEMBERS||JSON.parse(localStorage.getItem('hb_members')||'[]');}
+
 const firebaseConfig = {
   apiKey: "AIzaSyD33lEhUinxQHWME7DkiOrHfHamuNzA12A",
   authDomain: "habuild-to-do.firebaseapp.com",
@@ -1914,19 +1923,23 @@ function doRegisterUser(){
   if(pass.length<4){showAuthErr('regErr','Password min 4 characters');return;}
   if(pass!==pass2){showAuthErr('regErr','Passwords do not match');return;}
   var pwds=getPasswords();
-  var existing=MEMBERS.find(function(m){return m.name.toLowerCase()===name.toLowerCase();});
+  var members=_getMembers();
+  var existing=members.find(function(m){return m.name.toLowerCase()===name.toLowerCase();});
   if(existing&&pwds[name.toLowerCase()]){showAuthErr('regErr','Already registered, please Log In');return;}
-  var RC={manager:{emoji:'M',color:'#d97706',bg:'rgba(217,119,6,.15)',shift:'both',label:'Manager'},teamlead:{emoji:'TL',color:'#7c3aed',bg:'rgba(124,58,237,.15)',shift:'morning',label:'Team Lead'},colead:{emoji:'CL',color:'#0891b2',bg:'rgba(8,145,178,.15)',shift:'morning',label:'Co-Lead'},executive:{emoji:'EX',color:'#6366f1',bg:'rgba(99,102,241,.15)',shift:'morning',label:'Executive'}};
+  var RC={manager:{emoji:'👑',color:'#d97706',bg:'rgba(217,119,6,.15)',shift:'both',label:'Manager'},teamlead:{emoji:'TL',color:'#7c3aed',bg:'rgba(124,58,237,.15)',shift:'morning',label:'Team Lead'},colead:{emoji:'CL',color:'#0891b2',bg:'rgba(8,145,178,.15)',shift:'morning',label:'Co-Lead'},executive:{emoji:'EX',color:'#6366f1',bg:'rgba(99,102,241,.15)',shift:'morning',label:'Executive'}};
   var DS={'Session Team':'both','Morning Shift':'morning','Evening Shift':'evening'};
   var rc=RC[role]||RC.executive;
   if(existing){existing.role=rc.label;existing.emoji=rc.emoji;existing.color=rc.color;existing.bg=rc.bg;existing.shift=DS[dept]||rc.shift;existing.roleKey=role;}
-  else{MEMBERS.push({name:name,role:rc.label,emoji:rc.emoji,color:rc.color,bg:rc.bg,shift:DS[dept]||rc.shift,roleKey:role});}
-  saveMembers();
+  else{members.push({name:name,role:rc.label,emoji:rc.emoji,color:rc.color,bg:rc.bg,shift:DS[dept]||rc.shift,roleKey:role});}
+  localStorage.setItem('hb_members',JSON.stringify(members));
+  if(window.MEMBERS)window.MEMBERS=members;
   pwds[name.toLowerCase()]=hashPwd(pass);savePasswords(pwds);
   var rq=document.getElementById('rQ'),rqa=document.getElementById('rQA');
   if(rq&&rq.value&&rqa&&rqa.value.trim()){var rec=getRecovery();rec[name.toLowerCase()]={q:rq.value,a:rqa.value.trim().toLowerCase()};saveRecovery(rec);}
   toast('Welcome '+name+'!');
-  setTimeout(function(){loginWith(name+'|'+rc.emoji+'|'+rc.color+'|'+role);},600);
+  setTimeout(function(){
+    if(typeof loginWith==='function')loginWith(name+'|'+rc.emoji+'|'+rc.color+'|'+role);
+  },600);
 }
 function doLoginUser(){
   var username=(document.getElementById('lUser').value||'').trim();
@@ -1942,43 +1955,96 @@ function doLoginUser(){
     setTimeout(function(){var i=document.getElementById('lPass');if(i)i.style.borderColor='';},1500);
     return;
   }
-  var member=MEMBERS.find(function(m){return m.name.toLowerCase()===key;});
+  var members=_getMembers();
+  var member=members.find(function(m){return m.name.toLowerCase()===key;});
   if(!member){showAuthErr('loginErr','Profile not found, please Register first');return;}
   toast('Welcome back '+member.name+'!');
-  setTimeout(function(){loginWith(member.name+'|'+(member.emoji||'?')+'|'+(member.color||'#6366f1')+'|'+(member.roleKey||'executive'));},600);
+  setTimeout(function(){
+    if(typeof loginWith==='function')loginWith(member.name+'|'+(member.emoji||'?')+'|'+(member.color||'#6366f1')+'|'+(member.roleKey||'executive'));
+  },600);
 }
 function openForgotPassword(){
   var ex=document.getElementById('fPM');if(ex)ex.remove();
-  var qM={pet:"Pet name?",school:"School?",city:"City born?",mother:"Mother name?",fav:"Fav food?"};
-  var modal=document.createElement('div');modal.id='fPM';modal.className='modal-overlay';modal.style.zIndex='2000';
-  var h='<div class="modal-box" style="max-width:340px">'
-    +'<div class="modal-hdr"><span>Forgot Password</span><button class="modal-close" id="cFPM">X</button></div>'
-    +'<div class="fld"><label>Username</label><input class="fi" id="fpU" type="text" placeholder="Your name"/></div>'
-    +'<div id="fpQS" style="display:none"><div class="fld"><label id="fpQL">Question</label><input class="fi" id="fpA" type="text" placeholder="Answer"/></div>'
-    +'<div class="fld"><label>New Password</label><input class="fi" id="fpNP" type="password" placeholder="Min 4 chars"/></div></div>'
-    +'<div id="fpMH" style="display:none;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:10px;font-size:.72rem;color:#fde68a;margin-bottom:8px">Ask your Manager to reset your password.</div>'
-    +'<p id="fpE" style="color:var(--red);font-size:.72rem;min-height:14px"></p>'
-    +'<div style="display:flex;gap:8px"><button class="btn" id="cnFPM">Cancel</button><button class="btn bg" id="fpNB">Next</button></div></div>';
-  modal.innerHTML=h;document.body.appendChild(modal);
+  var qM={pet:"What is your pet's name?",school:"What school did you go to?",city:"What city were you born in?",mother:"What is your mother's name?",fav:"What is your favourite food?"};
+
+  // Get all registered usernames to show as hints
+  var members=JSON.parse(localStorage.getItem('hb_members')||'[]');
+  var pwds=getPasswords();
+  var registeredNames=members.filter(function(m){return pwds[m.name.toLowerCase()];}).map(function(m){return m.name;});
+  var rec=getRecovery();
+
+  var hintHtml='';
+  if(registeredNames.length){
+    hintHtml='<div style="background:rgba(99,102,241,.07);border:1px solid rgba(99,102,241,.2);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:.74rem;color:var(--tx2)">'
+      +'<div style="font-weight:700;margin-bottom:5px;color:var(--tx3)">REGISTERED ACCOUNTS</div>'
+      +registeredNames.map(function(n){
+        var isManager=members.find(function(m){return m.name===n&&(m.roleKey==='manager'||m.role==='Manager');});
+        return '<div style="padding:3px 0;display:flex;align-items:center;gap:6px">'
+          +(isManager?'👑 ':'👤 ')
+          +'<strong>'+n+'</strong>'
+          +(isManager?' <span style="font-size:.62rem;background:rgba(217,119,6,.15);color:#d97706;padding:1px 6px;border-radius:4px">Manager</span>':'')
+          +(rec[n.toLowerCase()]?'<span style="font-size:.6rem;color:var(--brand2);margin-left:auto">✅ Recovery set</span>':'<span style="font-size:.6rem;color:var(--tx3);margin-left:auto">No recovery</span>')
+          +'</div>';
+      }).join('')
+      +'</div>';
+  } else {
+    hintHtml='<div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:.74rem;color:#fde68a">'
+      +'⚠️ No accounts registered yet on this device.'
+      +'</div>';
+  }
+
+  var modal=document.createElement('div');modal.id='fPM';modal.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML='<div style="background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:22px;max-width:380px;width:100%;max-height:90vh;overflow-y:auto">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">'
+    +'<div style="font-weight:700;font-size:1rem">🔑 Account Recovery</div>'
+    +'<button id="cFPM" style="background:none;border:none;color:var(--tx3);font-size:1.1rem;cursor:pointer">✕</button></div>'
+    +hintHtml
+    +'<div style="margin-bottom:10px"><div style="font-size:.72rem;color:var(--tx3);font-weight:600;margin-bottom:5px">YOUR USERNAME</div>'
+    +'<input class="fi2" id="fpU" type="text" placeholder="Enter your name exactly as registered" style="width:100%;box-sizing:border-box"/></div>'
+    +'<div id="fpQS" style="display:none">'
+    +'<div style="margin-bottom:10px"><div style="font-size:.72rem;color:var(--tx3);font-weight:600;margin-bottom:5px" id="fpQL">Recovery Question</div>'
+    +'<input class="fi2" id="fpA" type="text" placeholder="Your answer"/></div>'
+    +'<div style="margin-bottom:10px"><div style="font-size:.72rem;color:var(--tx3);font-weight:600;margin-bottom:5px">NEW PASSWORD</div>'
+    +'<input class="fi2" id="fpNP" type="password" placeholder="Min 4 characters"/></div></div>'
+    +'<div id="fpNoRec" style="display:none;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:8px;padding:10px;font-size:.73rem;color:#fde68a;margin-bottom:10px;line-height:1.6">'
+    +'⚠️ <strong>No recovery question was set</strong> for this account.<br>'
+    +'<span style="color:var(--tx3)">Options: Use browser DevTools → Application → Local Storage → find <code>hb_passwords</code> and delete the entry, then re-register.</span></div>'
+    +'<p id="fpE" style="color:var(--red);font-size:.72rem;min-height:14px;margin-bottom:8px"></p>'
+    +'<div style="display:flex;gap:8px">'
+    +'<button id="cnFPM" style="flex:1;background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rs);padding:10px;color:var(--tx);font-size:.82rem;font-weight:600;cursor:pointer">Cancel</button>'
+    +'<button id="fpNB" style="flex:1;background:var(--brand);border:none;border-radius:var(--rs);padding:10px;color:#fff;font-size:.82rem;font-weight:700;cursor:pointer">Next →</button>'
+    +'</div></div>';
+
+  document.body.appendChild(modal);
   var step=1;
   document.getElementById('cFPM').onclick=function(){modal.remove();};
   document.getElementById('cnFPM').onclick=function(){modal.remove();};
   document.getElementById('fpNB').onclick=function(){
     var u=(document.getElementById('fpU').value||'').trim();
-    if(!u){document.getElementById('fpE').textContent='Enter username';return;}
-    var rec=getRecovery();var k=u.toLowerCase();
+    if(!u){document.getElementById('fpE').textContent='Enter your username';return;}
+    var k=u.toLowerCase();
+    document.getElementById('fpE').textContent='';
     if(step===1){
-      if(!rec[k]||!rec[k].q){document.getElementById('fpMH').style.display='block';document.getElementById('fpNB').style.display='none';return;}
+      if(!pwds[k]){document.getElementById('fpE').textContent='Username not found. Check spelling.';return;}
+      if(!rec[k]||!rec[k].q){
+        document.getElementById('fpNoRec').style.display='block';
+        document.getElementById('fpNB').style.display='none';
+        return;
+      }
       document.getElementById('fpQL').textContent=qM[rec[k].q]||rec[k].q;
-      document.getElementById('fpQS').style.display='block';document.getElementById('fpNB').textContent='Reset';step=2;return;
+      document.getElementById('fpQS').style.display='block';
+      document.getElementById('fpNB').textContent='Reset Password';
+      step=2;return;
     }
     var ans=(document.getElementById('fpA').value||'').trim().toLowerCase();
-    var np=(document.getElementById('fpNP').value||'').trim();
-    if(!rec[k]||rec[k].a!==ans){document.getElementById('fpE').textContent='Wrong answer';return;}
-    if(np.length<4){document.getElementById('fpE').textContent='Min 4 chars';return;}
-    var pwds=getPasswords();pwds[k]=hashPwd(np);savePasswords(pwds);
-    modal.remove();toast('Password reset! Log in now.');
+    var np=(document.getElementById('fpNP').value||'');
+    if(!rec[k]||rec[k].a!==ans){document.getElementById('fpE').textContent='❌ Wrong answer';return;}
+    if(np.length<4){document.getElementById('fpE').textContent='Password must be at least 4 characters';return;}
+    pwds[k]=hashPwd(np);savePasswords(pwds);
+    modal.remove();
+    toast('✅ Password reset! You can now log in.');
   };
+  setTimeout(function(){var e=document.getElementById('fpU');if(e)e.focus();},100);
 }
 function authSetup(){
   function wire(id,fn){var el=document.getElementById(id);if(el)el.addEventListener('click',fn);}
@@ -2162,6 +2228,60 @@ function showPassErr(){}function authMainLogin(){}function toggleMainPassVis(){}
 function showMainErr(){}function sendOTP(){}function verOTP(){}function bkPhone(){}
 function resendWAOTP(){}
 function toggleVis(){}function resetAppData(){}
+
+function confirmManagerReset(){
+  if(!cu||cu.role!=='manager')return;
+  // Ask for password confirmation
+  var modal=document.createElement('div');
+  modal.id='resetConfirmModal';
+  modal.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;padding:20px';
+  modal.innerHTML=`
+    <div style="background:var(--sf);border:1.5px solid rgba(239,68,68,.3);border-radius:var(--r);padding:24px;max-width:340px;width:100%">
+      <div style="font-size:1.5rem;margin-bottom:8px;text-align:center">⚠️</div>
+      <div style="font-weight:700;font-size:1rem;margin-bottom:6px;color:rgba(239,68,68,.9);text-align:center">Reset All App Data?</div>
+      <div style="font-size:.76rem;color:var(--tx3);margin-bottom:16px;text-align:center;line-height:1.6">
+        This will permanently delete <strong style="color:var(--tx)">all tasks, members, attendance, messages</strong> and everything else.<br>This cannot be undone.
+      </div>
+      <div style="margin-bottom:12px">
+        <div style="font-size:.72rem;color:var(--tx3);margin-bottom:6px;font-weight:600">CONFIRM YOUR MANAGER PASSWORD</div>
+        <input type="password" id="resetPassInput" placeholder="Enter your password"
+          style="width:100%;box-sizing:border-box;background:var(--bg2);border:1.5px solid var(--bd);border-radius:var(--rs);padding:10px 12px;color:var(--tx);font-size:.85rem;font-family:var(--font);outline:none"/>
+        <div id="resetPassErr" style="color:rgba(239,68,68,.9);font-size:.7rem;min-height:16px;margin-top:5px"></div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="document.getElementById('resetConfirmModal').remove()"
+          style="flex:1;background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rs);padding:10px;color:var(--tx);font-size:.82rem;font-weight:600;cursor:pointer">
+          Cancel
+        </button>
+        <button onclick="doManagerReset()"
+          style="flex:1;background:rgba(239,68,68,.9);border:none;border-radius:var(--rs);padding:10px;color:#fff;font-size:.82rem;font-weight:700;cursor:pointer">
+          🗑️ Reset Everything
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+  setTimeout(()=>{const i=document.getElementById('resetPassInput');if(i)i.focus();},100);
+}
+
+function doManagerReset(){
+  const inp=document.getElementById('resetPassInput');
+  const err=document.getElementById('resetPassErr');
+  if(!inp||!cu)return;
+  const pwds=getPasswords();
+  const key=cu.name.toLowerCase();
+  if(pwds[key]!==hashPwd(inp.value)){
+    if(err)err.textContent='❌ Wrong password';
+    inp.style.borderColor='rgba(239,68,68,.6)';
+    inp.value='';inp.focus();
+    return;
+  }
+  // Password correct — wipe everything
+  document.getElementById('resetConfirmModal').remove();
+  localStorage.clear();
+  sessionStorage.clear();
+  toast('🗑️ All data cleared. Reloading...');
+  setTimeout(()=>location.reload(), 1200);
+}
 document.addEventListener('DOMContentLoaded',function(){authSetup();});
 
 </script>
@@ -2220,7 +2340,7 @@ document.addEventListener('DOMContentLoaded',function(){authSetup();});
           <p class="auth-form-sub" style="text-align:center;margin-bottom:24px">Choose how to sign in</p>
 
           <div class="auth-choice-row">
-            <button class="auth-choice-btn" id="btnGoPIN">
+            <button class="auth-choice-btn" id="btnGoPIN" onclick="openPINPick()">
               <div class="auth-choice-icon log" style="background:linear-gradient(135deg,rgba(16,185,129,.18),rgba(5,150,105,.12));border-color:rgba(16,185,129,.3)">🔢</div>
               <div>
                 <div class="auth-choice-label">Member PIN Login</div>
@@ -2228,7 +2348,7 @@ document.addEventListener('DOMContentLoaded',function(){authSetup();});
               </div>
               <span class="auth-choice-arrow">›</span>
             </button>
-            <button class="auth-choice-btn" id="btnGoLogin">
+            <button class="auth-choice-btn" id="btnGoLogin" onclick="showAuthPanel('authPLogin');setTimeout(function(){var e=document.getElementById('lUser');if(e)e.focus();},80)">
               <div class="auth-choice-icon log">🔑</div>
               <div>
                 <div class="auth-choice-label">Password Login</div>
@@ -2236,7 +2356,7 @@ document.addEventListener('DOMContentLoaded',function(){authSetup();});
               </div>
               <span class="auth-choice-arrow">›</span>
             </button>
-            <button class="auth-choice-btn" id="btnGoReg">
+            <button class="auth-choice-btn" id="btnGoReg" onclick="showAuthPanel('authPReg');setTimeout(function(){var e=document.getElementById('rName');if(e)e.focus();},80)">
               <div class="auth-choice-icon reg">✨</div>
               <div>
                 <div class="auth-choice-label">Create Account</div>
@@ -2246,9 +2366,6 @@ document.addEventListener('DOMContentLoaded',function(){authSetup();});
             </button>
           </div>
 
-          <div style="text-align:center;margin-top:20px">
-            <a id="btnResetData" style="font-size:.65rem;color:rgba(255,255,255,.15);cursor:pointer;text-decoration:underline;transition:color .2s" onmouseover="this.style.color='rgba(255,255,255,.4)'" onmouseout="this.style.color='rgba(255,255,255,.15)'">Reset all app data</a>
-          </div>
         </div>
 
         <!-- PANEL: PIN — Pick member -->
@@ -2330,7 +2447,7 @@ document.addEventListener('DOMContentLoaded',function(){authSetup();});
 
         <!-- PANEL: Login -->
         <div id="authPLogin" class="hidden">
-          <button class="auth-back-btn" id="btnLoginBack">← Back</button>
+          <button class="auth-back-btn" id="btnLoginBack" onclick="showAuthPanel('authP0')">← Back</button>
           <h2 class="auth-form-title">Welcome back</h2>
           <p class="auth-form-sub">Sign in to your account</p>
 
@@ -2348,17 +2465,17 @@ document.addEventListener('DOMContentLoaded',function(){authSetup();});
             </div>
           </div>
 
-          <button class="auth-btn" id="btnDoLogin">Sign In →</button>
+          <button class="auth-btn" id="btnDoLogin" onclick="doLoginUser()">Sign In →</button>
 
           <div style="text-align:center;margin-top:10px">
-            <a id="btnForgotPwd" style="font-size:.74rem;color:rgba(165,180,252,.45);cursor:pointer;transition:color .2s" onmouseover="this.style.color='#a5b4fc'" onmouseout="this.style.color='rgba(165,180,252,.45)'">Forgot password?</a>
+            <a id="btnForgotPwd" onclick="openForgotPassword()" style="font-size:.74rem;color:rgba(165,180,252,.45);cursor:pointer;transition:color .2s" onmouseover="this.style.color='#a5b4fc'" onmouseout="this.style.color='rgba(165,180,252,.45)'">Forgot password?</a>
           </div>
-          <div class="auth-foot" style="margin-top:8px">New here? <a id="btnToReg">Register instead</a></div>
+          <div class="auth-foot" style="margin-top:8px">New here? <a id="btnToReg" onclick="showAuthPanel('authPReg')">Register instead</a></div>
         </div>
 
         <!-- PANEL: Register -->
         <div id="authPReg" class="hidden">
-          <button class="auth-back-btn" id="btnRegBack">← Back</button>
+          <button class="auth-back-btn" id="btnRegBack" onclick="showAuthPanel('authP0')">← Back</button>
           <h2 class="auth-form-title">Create Account</h2>
           <p class="auth-form-sub">Set up your Habuild profile</p>
 
@@ -2420,8 +2537,8 @@ document.addEventListener('DOMContentLoaded',function(){authSetup();});
             <input class="auth-input" id="rQA" type="text" placeholder="Your answer (case-insensitive)" maxlength="40"/>
           </div>
 
-          <button class="auth-btn" id="btnDoRegister">Create Account &amp; Enter →</button>
-          <div class="auth-foot">Already registered? <a id="btnToLogin">Sign in instead</a></div>
+          <button class="auth-btn" id="btnDoRegister" onclick="doRegisterUser()">Create Account &amp; Enter →</button>
+          <div class="auth-foot">Already registered? <a id="btnToLogin" onclick="showAuthPanel('authPLogin')">Sign in instead</a></div>
         </div>
 
       </div>
@@ -3869,7 +3986,6 @@ function memTab(tab,el){
   ['mytasks','notifications','requestoff','myhistory','messages'].forEach(t=>{const e=document.getElementById('memTab'+t.charAt(0).toUpperCase()+t.slice(1));if(e)e.classList.toggle('hidden',t!==tab);});
   document.querySelectorAll('#memPills .np').forEach(b=>b.classList.remove('on'));if(el)el.classList.add('on');
   if(tab==='messages')renderMemMessages();
-}
   if(tab==='notifications')renderMemNotifs();
   if(tab==='requestoff')renderDORForm();
   if(tab==='myhistory')renderMemSched();
@@ -6106,7 +6222,11 @@ function updateSlideMenuProfile(){
   if(tog) tog.className='sm-item-toggle'+(isDark?' on':'');
   if(icon) icon.textContent=isDark?'\uD83C\uDF19':'\u2600\uFE0F';
   if(lbl) lbl.textContent=isDark?'Dark Mode':'Light Mode';
+  // Show Danger Zone only for Manager
+  const dz=document.getElementById('smDangerZone');
+  if(dz) dz.classList.toggle('hidden', cu.role!=='manager');
 }
+
 function toggleThemeSlide(){
   toggleTheme();
   updateSlideMenuProfile();
@@ -6670,6 +6790,18 @@ function renderSheetsQuick(){
   </div>
 
   <div class="sm-footer">
+    <!-- Danger Zone — Manager only -->
+    <div id="smDangerZone" class="hidden">
+      <div class="sm-divider"></div>
+      <div class="sm-section" style="color:rgba(239,68,68,.5)">⚠️ Danger Zone</div>
+      <button class="sm-item" onclick="closeSlideMenu();confirmManagerReset()" style="color:rgba(239,68,68,.8)">
+        <div class="sm-item-icon" style="background:rgba(239,68,68,.1)">🗑️</div>
+        <div class="sm-item-info">
+          <div class="sm-item-label" style="color:rgba(239,68,68,.9)">Reset All App Data</div>
+          <div class="sm-item-sub">Wipes everything — requires your password</div>
+        </div>
+      </button>
+    </div>
     <button class="sm-signout" onclick="closeSlideMenu();logout()">
       <span>🚪</span> Sign Out
     </button>
