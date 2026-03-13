@@ -1646,6 +1646,7 @@ function renderTeamSetup() {
 function openAddMemberModal() {
   document.getElementById('addMemberTitle').textContent = '➕ Add Team Member';
   document.getElementById('amName').value = '';
+  document.getElementById('amPhone').value = '';
   document.getElementById('amRole').value = 'executive';
   document.getElementById('amShift').value = 'morning';
   document.getElementById('amEmoji').value = '👤';
@@ -1658,6 +1659,7 @@ function editMember(idx) {
   const m = MEMBERS[idx]; if (!m) return;
   document.getElementById('addMemberTitle').textContent = '✏️ Edit Member';
   document.getElementById('amName').value = m.name;
+  document.getElementById('amPhone').value = m.phone || '';
   document.getElementById('amRole').value = m.roleKey || 'executive';
   document.getElementById('amShift').value = m.shift || 'morning';
   document.getElementById('amEmoji').value = m.emoji || '👤';
@@ -1668,23 +1670,22 @@ function editMember(idx) {
 function saveAddMember() {
   const name = document.getElementById('amName').value.trim();
   if (!name) { toast('Please enter a name!'); return; }
+  const phone = document.getElementById('amPhone').value.trim().replace(/\D/g,'');
   const role = document.getElementById('amRole').value;
   const shift = document.getElementById('amShift').value;
   const emoji = document.getElementById('amEmoji').value.trim() || '👤';
   const rc = ROLE_COLORS[role] || ROLE_COLORS.executive;
   const editIdx = document.getElementById('amEditIndex').value;
-  const member = { name:name, role:ROLE_LABELS[role], emoji:emoji, color:rc.color, bg:rc.bg, shift:shift, roleKey:role };
+  const member = { name, role:ROLE_LABELS[role], emoji, color:rc.color, bg:rc.bg, shift, roleKey:role, phone };
 
   if (editIdx !== '') {
     MEMBERS[parseInt(editIdx)] = member;
     toast('Member updated ✅');
   } else {
-    // Check duplicate name
     if (MEMBERS.find(function(m){ return m.name.toLowerCase()===name.toLowerCase(); })) {
       toast('A member with this name already exists!'); return;
     }
     MEMBERS.push(member);
-    // Update woff and hday for new member
     if (!woff[name]) woff[name] = [6];
     if (!hday[name]) hday[name] = [];
     sv();
@@ -2662,6 +2663,7 @@ document.addEventListener('DOMContentLoaded',function(){authSetup();});
             <span class="psm" id="dailyCnt">—</span>
             <button class="btn bgh" style="font-size:.7rem;padding:4px 9px" onclick="openAbsMdl()">👤 Attendance</button>
             <button class="btn bb" style="font-size:.7rem;padding:4px 9px" onclick="exportCSV()">📤 Export CSV</button>
+            <button onclick="sendAllWAReminders()" style="font-size:.7rem;padding:4px 9px;background:#25d366;border:none;border-radius:var(--rs);color:#fff;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.116 1.522 5.849L.057 23.5l5.797-1.522A11.947 11.947 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.007-1.373l-.36-.213-3.44.902.918-3.354-.234-.373A9.818 9.818 0 1112 21.818z"/></svg> WhatsApp All</button>
           </div>
         </div>
         <div id="dailyContent"></div>
@@ -2824,7 +2826,7 @@ document.addEventListener('DOMContentLoaded',function(){authSetup();});
         </div>
         <!-- MY SCHEDULE (week view) -->
         <div id="memTabMyhistory" class="hidden">
-          <div class="sh"><h2>My Weekly Schedule</h2><span class="psm" id="memSchedCnt">—</span></div>
+          <div class="sh"><h2>My Weekly Schedule</h2><span class="psm" id="memSchedCnt">—</span><button class="btn bgh" style="font-size:.7rem;padding:4px 10px;margin-left:auto" onclick="downloadWeeklyReport()">📥 Download</button></div>
           <div id="memSchedContent"></div>
         </div>
 
@@ -2922,7 +2924,7 @@ document.addEventListener('DOMContentLoaded',function(){authSetup();});
 
       <!-- MY SCHEDULE -->
       <div id="execTabMyhistory" class="hidden">
-        <div class="sh"><h2>My Weekly Schedule</h2><span class="psm" id="execSchedCnt">—</span></div>
+        <div class="sh"><h2>My Weekly Schedule</h2><span class="psm" id="execSchedCnt">—</span><button class="btn bgh" style="font-size:.7rem;padding:4px 10px;margin-left:auto" onclick="downloadWeeklyReport()">📥 Download</button></div>
         <div id="execSchedContent"></div>
       </div>
 
@@ -3752,6 +3754,193 @@ function renderMemSched(){
     </div>`;
   });
   document.getElementById('memSchedContent').innerHTML=h||`<div class="empty-s"><div class="ei">📅</div><p>No tasks assigned yet</p></div>`;
+}
+
+// ── WhatsApp Reminders for all members ──
+function sendAllWAReminders(){
+  const todayTasks = tasks.filter(t => t.type==='daily' && t.days && t.days.includes(todayI));
+  const byMember = {};
+  todayTasks.forEach(t => {
+    if(!byMember[t.assignee]) byMember[t.assignee] = [];
+    byMember[t.assignee].push(t);
+  });
+  const members = MEMBERS.filter(m => m.name !== 'Manager');
+  const day = DAYS[todayI];
+  const groupLink = localStorage.getItem('hb_wa_group') || '';
+
+  // Build full team summary for group
+  const groupMsg = `🙏 *Good Morning Team!* 📋\n\n*Today's Tasks — ${day}*\n\n`
+    + members.map(m => {
+        const mt = (byMember[m.name]||[]).sort((a,b)=>(a.startTime||'').localeCompare(b.startTime||''));
+        if(!mt.length) return null;
+        return `*${m.emoji} ${m.name}:*\n` + mt.map(t=>`  • ${t.title}${t.startTime?' ('+fmt(t.startTime)+')':''}`).join('\n');
+      }).filter(Boolean).join('\n\n')
+    + `\n\nPlease complete all tasks on time! 💪\n_- Habuild Team_`;
+
+  const ex = document.getElementById('waReminderModal');
+  if(ex) ex.remove();
+  const modal = document.createElement('div');
+  modal.id = 'waReminderModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto';
+
+  // Individual rows
+  const rows = members.map(m => {
+    const myTasks = (byMember[m.name]||[]).sort((a,b)=>(a.startTime||'').localeCompare(b.startTime||''));
+    const taskLines = myTasks.length
+      ? myTasks.map(t=>`  • ${t.title}${t.startTime?' ('+fmt(t.startTime)+')':''}`).join('\n')
+      : '  • No tasks today';
+    const msg = `🙏 Hi ${m.name}!\n\nYour tasks for *${day}*:\n${taskLines}\n\nPlease complete on time. All the best! 💪\n_- Habuild Team_`;
+    const waUrl = m.phone && m.phone.length>=10
+      ? `https://wa.me/91${m.phone}?text=${encodeURIComponent(msg)}`
+      : null;
+    const done = myTasks.filter(t=>isDone(t,'daily')).length;
+    return `<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--bd)">
+      <div>
+        <div style="font-weight:600;font-size:.84rem">${m.emoji} ${m.name}</div>
+        <div style="font-size:.68rem;color:var(--tx3)">${myTasks.length} tasks · ${done} done${m.phone?' · 📱+91'+m.phone:'<span style="color:#f87171"> · No number saved</span>'}</div>
+      </div>
+      ${waUrl
+        ? `<a href="${waUrl}" target="_blank" style="background:#25d366;color:#fff;padding:6px 12px;border-radius:8px;font-size:.74rem;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;margin-left:8px">📲 Send</a>`
+        : `<span style="font-size:.68rem;color:var(--tx3);margin-left:8px">Add number<br>in Team Setup</span>`
+      }
+    </div>`;
+  }).join('');
+
+  modal.innerHTML = `
+  <div style="background:var(--sf);border-radius:var(--r);padding:20px;max-width:440px;width:100%;max-height:90vh;overflow-y:auto">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div style="font-weight:700;font-size:1rem">📲 WhatsApp Reminders — ${day}</div>
+      <button onclick="document.getElementById('waReminderModal').remove()" style="background:none;border:none;color:var(--tx3);font-size:1.2rem;cursor:pointer">✕</button>
+    </div>
+
+    <!-- GROUP SEND -->
+    <div style="background:rgba(37,211,102,.07);border:1.5px solid rgba(37,211,102,.25);border-radius:10px;padding:13px;margin-bottom:16px">
+      <div style="font-weight:700;font-size:.85rem;margin-bottom:6px">👥 Send to WhatsApp Group</div>
+      <div style="font-size:.72rem;color:var(--tx3);margin-bottom:10px">Sends full team task list to your group in one tap</div>
+      <div style="display:flex;gap:6px;margin-bottom:10px">
+        <input id="waGroupInput" type="url" placeholder="Paste WhatsApp group link..." value="${groupLink}"
+          style="flex:1;background:var(--bg2);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;color:var(--tx);font-size:.76rem;font-family:var(--font);outline:none"/>
+        <button onclick="localStorage.setItem('hb_wa_group',document.getElementById('waGroupInput').value.trim());toast('✅ Group link saved!')" 
+          style="background:var(--brand);border:none;border-radius:8px;padding:8px 12px;color:#fff;font-size:.74rem;font-weight:700;cursor:pointer;white-space:nowrap">💾 Save</button>
+      </div>
+      ${groupLink
+        ? `<a href="${groupLink}" target="_blank" onclick="setTimeout(()=>{navigator.clipboard&&navigator.clipboard.writeText(groupMsg)},300)" 
+            style="display:flex;align-items:center;justify-content:center;gap:8px;background:#25d366;color:#fff;padding:10px;border-radius:9px;font-size:.82rem;font-weight:700;text-decoration:none;width:100%;box-sizing:border-box">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.116 1.522 5.849L.057 23.5l5.797-1.522A11.947 11.947 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.007-1.373l-.36-.213-3.44.902.918-3.354-.234-.373A9.818 9.818 0 1112 21.818z"/></svg>
+            📋 Copy Message &amp; Open Group
+          </a>`
+        : `<button onclick="var v=document.getElementById('waGroupInput').value.trim();if(!v){alert('Paste your group link first!');}else{localStorage.setItem('hb_wa_group',v);location.reload();}"
+            style="width:100%;background:rgba(37,211,102,.15);border:1.5px dashed rgba(37,211,102,.3);border-radius:9px;padding:10px;color:#86efac;font-size:.78rem;font-weight:600;cursor:pointer">
+            👆 Paste your group link above to enable group send
+          </button>`
+      }
+    </div>
+
+    <!-- INDIVIDUAL SEND -->
+    <div style="font-weight:700;font-size:.85rem;margin-bottom:10px">👤 Send Individually</div>
+    <div style="font-size:.72rem;color:var(--tx3);margin-bottom:10px">Each member gets a personal message with only their tasks</div>
+    ${rows}
+
+    <button onclick="document.getElementById('waReminderModal').remove()" style="width:100%;margin-top:14px;background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rs);padding:10px;color:var(--tx);font-size:.82rem;font-weight:600;cursor:pointer">Close</button>
+  </div>`;
+
+  document.body.appendChild(modal);
+}
+
+function downloadWeeklyReport(){
+  if(!cu) return;
+  const name = cu.name;
+  const allMyT = tasks.filter(t => t.type==='daily' && t.assignee===name);
+  const myExtra = tasks.filter(t => t.type==='extra' && t.assignee===name);
+  const myCal = tasks.filter(t => t.type==='cal' && t.assignee===name);
+
+  if(!allMyT.length && !myExtra.length && !myCal.length){
+    toast('No tasks to download yet!'); return;
+  }
+
+  // Build a clean text report
+  const lines = [];
+  lines.push('╔══════════════════════════════════════════╗');
+  lines.push('       HABUILD TO DO — WEEKLY REPORT');
+  lines.push('╚══════════════════════════════════════════╝');
+  lines.push('');
+  lines.push('Member  : ' + name);
+  lines.push('Generated: ' + new Date().toLocaleString());
+  lines.push('');
+
+  // Daily tasks by day
+  lines.push('━━━ WEEKLY TASK SCHEDULE ━━━');
+  let hasDailyTasks = false;
+  DAYS.forEach((day, i) => {
+    const dt = allMyT.filter(t => t.days && t.days.includes(i))
+      .sort((a,b) => (a.startTime||'99:99').localeCompare(b.startTime||'99:99'));
+    const off = iOff(name, i), half = iHalf(name, i);
+    if(!dt.length && !off && !half) return;
+    hasDailyTasks = true;
+    lines.push('');
+    const dayLabel = i === todayI ? '▶ '+day+' (Today)' : '  '+day;
+    lines.push(dayLabel + (off?' 🏖️ Week Off':half?' 🌤️ Half Day':''));
+    lines.push('  ' + '─'.repeat(38));
+    if(off){ lines.push('  [ Week Off ]'); }
+    else if(!dt.length){ lines.push('  [ No tasks ]'); }
+    else {
+      dt.forEach((t,idx) => {
+        const time = (t.startTime && t.endTime) ? `${fmt(t.startTime)} – ${fmt(t.endTime)}` : t.startTime ? fmt(t.startTime) : '';
+        const done = isDone(t,'daily') ? '✅' : '⬜';
+        lines.push(`  ${done} ${idx+1}. ${t.title}`);
+        if(time) lines.push(`      ⏰ ${time}`);
+        if(t.priority && t.priority!=='medium') lines.push(`      🔥 Priority: ${t.priority}`);
+        if(t.category) lines.push(`      📁 ${t.category}`);
+        if(t.notes) lines.push(`      📝 ${t.notes}`);
+      });
+    }
+  });
+  if(!hasDailyTasks) lines.push('  No weekly tasks assigned.');
+
+  // Extra tasks
+  if(myExtra.length){
+    lines.push('');
+    lines.push('━━━ EXTRA / URGENT TASKS ━━━');
+    myExtra.forEach((t,idx) => {
+      const done = isDone(t,'extra') ? '✅' : '⬜';
+      lines.push(`  ${done} ${idx+1}. ${t.title}`);
+      if(t.notes) lines.push(`      📝 ${t.notes}`);
+    });
+  }
+
+  // Calendar tasks
+  if(myCal.length){
+    lines.push('');
+    lines.push('━━━ CALENDAR TASKS ━━━');
+    myCal.sort((a,b)=>(a.calDate||'').localeCompare(b.calDate||'')).forEach((t,idx) => {
+      const done = isDone(t,'cal') ? '✅' : '⬜';
+      lines.push(`  ${done} ${idx+1}. ${t.title}`);
+      if(t.calDate) lines.push(`      📅 Date: ${t.calDate}`);
+      if(t.notes) lines.push(`      📝 ${t.notes}`);
+    });
+  }
+
+  // Summary
+  const totalD = allMyT.length;
+  const doneD = allMyT.filter(t => isDone(t,'daily')).length;
+  lines.push('');
+  lines.push('━━━ SUMMARY ━━━');
+  lines.push(`  Daily Tasks   : ${totalD} total, ${doneD} completed`);
+  lines.push(`  Extra Tasks   : ${myExtra.length}`);
+  lines.push(`  Calendar Tasks: ${myCal.length}`);
+  lines.push('');
+  lines.push('Generated by Habuild To Do 🙏');
+
+  // Download as .txt
+  const text = lines.join('\n');
+  const blob = new Blob([text], {type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `weekly_report_${name.replace(/\s+/g,'_')}_${tds()}.txt`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('📥 Weekly report downloaded!');
 }
 
 // ═══════════════════════════════════════
@@ -5130,13 +5319,85 @@ function deleteLink(id){ links=links.filter(x=>x.id!==id);sv();renderLinks();toa
 // ═══════════════════════════════════════
 let alertDismissed={};
 function startAlertSystem(){
+  // Request browser notification permission on first load
+  if('Notification' in window && Notification.permission === 'default'){
+    Notification.requestPermission();
+  }
   setInterval(checkAlerts, 30000);
   setTimeout(checkAlerts, 2000);
 }
+
+function sendBrowserNotif(title, body, icon){
+  if(!('Notification' in window)) return;
+  if(Notification.permission === 'granted'){
+    const n = new Notification(title, {
+      body: body,
+      icon: icon || '🔔',
+      badge: '🔔',
+      tag: title, // prevents duplicate notifications
+      requireInteraction: false
+    });
+    n.onclick = function(){ window.focus(); n.close(); };
+    setTimeout(()=>n.close(), 10000);
+  }
+}
+
 function checkAlerts(){
   if(!cu) return;
   const now=new Date();
   const hhmm=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  // ── TASK REMINDERS (5 mins before start time) ──
+  const myTasks = tasks.filter(t => {
+    if(!t.startTime) return false;
+    if(t.type==='daily') return t.days && t.days.includes(todayI) && t.assignee===cu.name;
+    if(t.type==='extra') return t.assignee===cu.name;
+    if(t.type==='cal') return t.calDate===tds() && t.assignee===cu.name;
+    return false;
+  });
+
+  myTasks.forEach(t => {
+    const [th, tm] = t.startTime.split(':').map(Number);
+    const taskTime = new Date();
+    taskTime.setHours(th, tm, 0, 0);
+    // 5 mins before = taskTime - 5min
+    const reminderTime = new Date(taskTime.getTime() - 5 * 60000);
+    const diff = Math.abs(now - reminderTime);
+    const alertKey = `task_remind_${t.id}_${tds()}`;
+    const alreadyDone = isDone(t, t.type);
+
+    if(diff < 35000 && !alertDismissed[alertKey] && !alreadyDone){
+      alertDismissed[alertKey] = true;
+      const timeStr = fmt(t.startTime);
+      const msg = `Starting at ${timeStr}`;
+
+      // Browser notification
+      sendBrowserNotif(`⏰ Task in 5 mins: ${t.title}`, msg + (t.category ? ` · ${t.category}` : ''));
+
+      // In-app alert banner
+      showAlert('⏰', `Task in 5 mins: ${t.title}`, msg, t.priority === 'high');
+
+      // WhatsApp reminder button — uses member phone number
+      const member = MEMBERS.find(m => m.name === t.assignee);
+      if(member && member.phone && member.phone.length >= 10){
+        const waMsg = `⏰ Hi ${t.assignee}! Your task *${t.title}* starts in 5 minutes at ${timeStr}. Please get ready! 🙏\n_- Habuild To Do_`;
+        const waUrl = `https://wa.me/91${member.phone}?text=${encodeURIComponent(waMsg)}`;
+        setTimeout(()=>{
+          const banner = document.getElementById('alertBanner');
+          if(banner && !banner.querySelector('.wa-remind-btn')){
+            const btn = document.createElement('a');
+            btn.href = waUrl;
+            btn.target = '_blank';
+            btn.className = 'wa-remind-btn';
+            btn.style.cssText = 'display:inline-flex;align-items:center;gap:6px;margin-top:8px;background:#25d366;color:#fff;padding:7px 14px;border-radius:8px;font-size:.78rem;font-weight:700;text-decoration:none;cursor:pointer;';
+            btn.innerHTML = `<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.123.553 4.116 1.522 5.849L.057 23.5l5.797-1.522A11.947 11.947 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.007-1.373l-.36-.213-3.44.902.918-3.354-.234-.373A9.818 9.818 0 1112 21.818z"/></svg> Send WhatsApp to ${t.assignee}`;
+            banner.appendChild(btn);
+          }
+        }, 400);
+      }
+    }
+  });
+
   // Check message template alerts
   msgTemplates.forEach(m=>{
     if(!m.time||!m.alert) return;
@@ -5146,9 +5407,11 @@ function checkAlerts(){
     const diff=Math.abs(now-alertTime);
     if(diff<35000&&!alertDismissed[alertKey]){
       alertDismissed[alertKey]=true;
+      sendBrowserNotif(`📢 Prepare message: ${m.name}`, `Send at ${fmt(m.time)}`);
       showAlert('📢',`Time to prepare: ${m.name}`,`Send at ${fmt(m.time)} → ${(m.groups||[]).join(', ')}`,false);
     }
   });
+
   // Check batch step alerts
   if(typeof BATCHES==='undefined') return;
   BATCHES.forEach(b=>{
@@ -5156,7 +5419,7 @@ function checkAlerts(){
       if(!s.time) return;
       const key=batchKey(b.id);
       const checks=batchChecks[key]||{};
-      if(checks[i]) return; // already done
+      if(checks[i]) return;
       const [sh,sm]=s.time.split(':');
       const stepTime=new Date();stepTime.setHours(+sh,+sm,0,0);
       const alertKey=`alert_step_${b.id}_${i}_${tds()}`;
@@ -6686,6 +6949,13 @@ function renderSheetsQuick(){
     </div>
     <div class="fld"><label>Full Name *</label>
       <input class="fi" id="amName" placeholder="e.g. Rahul Sharma" maxlength="30"/>
+    </div>
+    <div class="fld"><label>WhatsApp Number *</label>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:.78rem;color:var(--tx3);white-space:nowrap">+91</span>
+        <input class="fi" id="amPhone" placeholder="10-digit mobile number" maxlength="10" type="tel" style="flex:1"/>
+      </div>
+      <div style="font-size:.65rem;color:var(--tx3);margin-top:3px">Used to send WhatsApp task reminders</div>
     </div>
     <div class="fld"><label>Role *</label>
       <select class="fi" id="amRole">
