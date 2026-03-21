@@ -665,6 +665,64 @@ textarea.fi2{resize:vertical;min-height:58px;}
 .sm-signout:hover{background:rgba(220,38,38,.12);border-color:var(--red);}
 .sm-version{text-align:center;font-size:.6rem;color:var(--tx3);margin-top:8px;}
 
+/* ══════════════ SMART REMINDER POPUP ══════════════ */
+.rem-popup{position:fixed;top:24px;right:24px;z-index:9999;width:320px;background:var(--sf);border:1.5px solid var(--brand);border-radius:16px;box-shadow:0 8px 40px rgba(99,102,241,.25);padding:18px;display:none;animation:remIn .35s cubic-bezier(.34,1.56,.64,1);}
+.rem-popup.show{display:block;}
+@keyframes remIn{from{opacity:0;transform:translateY(-16px) scale(.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+.rem-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:13px;}
+.rem-icon{font-size:1.6rem;flex-shrink:0;animation:remRing .5s ease 3;}
+@keyframes remRing{0%,100%{transform:rotate(0)}20%{transform:rotate(20deg)}40%{transform:rotate(-20deg)}60%{transform:rotate(14deg)}80%{transform:rotate(-8deg)}}
+.rem-title{font-size:.9rem;font-weight:700;color:var(--tx);line-height:1.3;}
+.rem-sub{font-size:.72rem;color:var(--tx3);margin-top:2px;}
+.rem-btns{display:flex;gap:7px;}
+.rem-btn{flex:1;padding:8px;border-radius:var(--rs);border:1.5px solid var(--bd);background:var(--sf2);color:var(--tx2);font-family:var(--font);font-size:.76rem;font-weight:700;cursor:pointer;transition:all .15s;text-align:center;}
+.rem-btn:hover{border-color:var(--brand);color:var(--brand);}
+.rem-btn.done{background:linear-gradient(135deg,var(--brand),var(--brand2));color:#fff;border-color:transparent;}
+.rem-btn.done:hover{filter:brightness(1.08);}
+
+/* ══════════════ HABIT TRACKER ══════════════ */
+.habit-section{padding:0;}
+.habit-add-panel{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:16px;margin-bottom:16px;box-shadow:var(--sh);}
+.habit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:20px;}
+.habit-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:16px;box-shadow:var(--sh);transition:all .2s;position:relative;overflow:hidden;}
+.habit-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;}
+.habit-card:hover{border-color:var(--bd2);transform:translateY(-1px);}
+.habit-card-top{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.habit-emoji{font-size:1.5rem;flex-shrink:0;}
+.habit-info{flex:1;min-width:0;}
+.habit-name{font-size:.88rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.habit-cat{font-size:.63rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;font-weight:600;margin-top:2px;}
+.habit-streak-badge{display:flex;align-items:center;gap:4px;background:rgba(245,158,11,.12);color:var(--gold);border-radius:50px;padding:3px 9px;font-size:.68rem;font-weight:700;flex-shrink:0;}
+.habit-check-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.habit-big-check{width:44px;height:44px;border-radius:12px;border:2.5px solid var(--bd2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1.2rem;transition:all .2s;background:var(--sf2);}
+.habit-big-check.done{background:linear-gradient(135deg,var(--brand),var(--brand2));border-color:transparent;box-shadow:0 4px 12px var(--glow);}
+.habit-big-check.done::after{content:'✓';font-size:1.1rem;font-weight:800;color:#fff;}
+.habit-streak-info{text-align:right;}
+.habit-streak-num{font-family:'Fraunces',serif;font-size:1.6rem;font-weight:700;line-height:1;}
+.habit-streak-lbl{font-size:.6rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;font-weight:600;}
+/* Heatmap */
+.habit-heatmap{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:10px;}
+.hm-cell{aspect-ratio:1;border-radius:3px;background:var(--bg2);transition:all .15s;cursor:default;}
+.hm-cell.done-1{background:rgba(99,102,241,.3);}
+.hm-cell.done-2{background:rgba(99,102,241,.55);}
+.hm-cell.done-3{background:rgba(99,102,241,.8);}
+.hm-cell.today{outline:2px solid var(--brand);outline-offset:1px;}
+/* Weekly dots */
+.habit-week{display:flex;gap:4px;margin-top:8px;justify-content:space-between;}
+.hw-dot{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.hw-dot-circle{width:22px;height:22px;border-radius:50%;background:var(--bg2);border:1.5px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:700;color:var(--tx3);transition:all .2s;}
+.hw-dot-circle.done{background:var(--brand);border-color:var(--brand);color:#fff;}
+.hw-dot-lbl{font-size:.52rem;color:var(--tx3);font-weight:600;}
+/* Habit stats */
+.habit-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:18px;}
+.habit-stat{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:13px 15px;text-align:center;box-shadow:var(--sh);}
+.habit-stat .n{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:700;line-height:1;}
+.habit-stat .l{font-size:.62rem;color:var(--tx3);text-transform:uppercase;letter-spacing:.06em;margin-top:2px;font-weight:600;}
+/* Habit actions */
+.habit-del-btn{position:absolute;top:10px;right:10px;width:24px;height:24px;border-radius:6px;border:none;background:transparent;cursor:pointer;color:var(--tx3);font-size:12px;display:flex;align-items:center;justify-content:center;transition:all .15s;opacity:0;}
+.habit-card:hover .habit-del-btn{opacity:1;}
+.habit-del-btn:hover{background:rgba(220,38,38,.1);color:var(--red);}
+
 /* ══════════════ SHIFT BADGES ══════════════ */
 .shift-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 9px;border-radius:50px;font-size:.6rem;font-weight:700;}
 .shift-morning{background:rgba(37,99,235,.1);color:var(--blue);}
@@ -1272,7 +1330,7 @@ textarea.fi2{resize:vertical;min-height:58px;}
   background:linear-gradient(135deg,rgba(99,102,241,0.15),rgba(16,185,129,0.08));
   backdrop-filter:blur(20px);
   -webkit-backdrop-filter:blur(20px);
-  border-bottom:1px solid rgba(99,102,241,0.2);
+  border-bottom:none;
   padding:0 16px;
   height:58px;
   display:flex;align-items:center;
@@ -1479,12 +1537,12 @@ textarea.fi2{resize:vertical;min-height:58px;}
 }
 
 /* ══ HEADER 2-ROW CLEAN ══ */
-.hdr { background:var(--sf); position:sticky; top:0; z-index:100; border-bottom:1px solid var(--bd); }
+.hdr { background:var(--sf); position:sticky; top:0; z-index:100; border-bottom:none; }
 
 .hdr-row1 {
   display:flex; align-items:center; justify-content:space-between;
   padding:6px 12px; gap:8px;
-  border-bottom:1px solid var(--bd);
+  border-bottom:none;
   width:100%;
 }
 
@@ -2603,6 +2661,7 @@ document.addEventListener('DOMContentLoaded',function(){authSetup();});
         <button class="np" onclick="mTab('dayoffreqs',this)" id="dorTab">📋 Day Off Requests <span id="dorBadge" class="hidden" style="background:var(--red);color:#fff;border-radius:50px;padding:1px 6px;font-size:.6rem;margin-left:4px">0</span></button>
         <button class="np" onclick="mTab('sheets',this)">📊 Sheets</button>
         <button class="np" onclick="mTab('teamsetup',this)">⚙️ Team Setup</button>
+        <button class="np" onclick="mTab('habits',this)">🌱 Habits</button>
       </div>
       <div class="srow" id="mgrStats"></div>
       <div class="abar hidden" id="abBar"><span style="font-size:1.1rem">⚠️</span><span style="font-size:.82rem;font-weight:700;color:var(--red)">Members Absent Today</span><div class="achips" id="abChips"></div></div>
@@ -2618,9 +2677,10 @@ document.addEventListener('DOMContentLoaded',function(){authSetup();});
           <div><span class="fl">Priority</span><select class="fi2" id="inP"><option value="high">🔴 High</option><option value="medium" selected>🟡 Medium</option><option value="low">🟢 Low</option></select></div>
           <div><span class="fl">Start Time</span><input class="fi2" type="time" id="inSt"/></div>
           <div><span class="fl">End Time</span><input class="fi2" type="time" id="inEt"/></div>
-          <div><span class="fl">Category</span><select class="fi2" id="inC"><option>Backend / Tech</option><option>Sessions / Classes</option><option>Marketing</option><option>Student Support</option><option>Finance / Admin</option><option>Daily Routine</option></select></div>
+          <div><span class="fl">🔔 Reminder Time</span><input class="fi2" type="time" id="inRem" title="Set a reminder notification for this task"/></div>
         </div>
-        <div class="g2" style="margin-top:9px">
+        <div class="g3" style="margin-top:9px">
+          <div><span class="fl">Category</span><select class="fi2" id="inC"><option>Backend / Tech</option><option>Sessions / Classes</option><option>Marketing</option><option>Student Support</option><option>Finance / Admin</option><option>Daily Routine</option></select></div>
           <div><span class="fl">Days (Ctrl/⌘ multi-select)</span><select class="fi2" id="inD" multiple style="height:72px"><option value="0">Monday</option><option value="1">Tuesday</option><option value="2">Wednesday</option><option value="3">Thursday</option><option value="4">Friday</option><option value="5">Saturday</option><option value="6">Sunday</option></select></div>
           <div><span class="fl">Notes</span><textarea class="fi2" id="inN" placeholder="Extra notes..."></textarea></div>
         </div>
@@ -2781,6 +2841,11 @@ document.addEventListener('DOMContentLoaded',function(){authSetup();});
         </div>
       </div>
 
+      <!-- HABITS TAB (Manager) -->
+      <div id="mgrTabHabits" class="hidden">
+        <div id="habitMgrContent"></div>
+      </div>
+
     </div>
   </div>
 
@@ -2797,6 +2862,7 @@ document.addEventListener('DOMContentLoaded',function(){authSetup();});
           <button class="np" onclick="memTab('messages',this)">📢 Msg Templates</button>
           <button class="np" onclick="memTab('requestoff',this)">🏖️ Request Day Off</button>
           <button class="np" onclick="memTab('myhistory',this)">📅 My Schedule</button>
+          <button class="np" onclick="memTab('habits',this)">🌱 Habits</button>
         </div>
         <!-- MY TASKS -->
         <div id="memTabMytasks">
@@ -2837,6 +2903,11 @@ document.addEventListener('DOMContentLoaded',function(){authSetup();});
             <span>💡</span><span>Copy any message and paste directly into WhatsApp or Email.</span>
           </div>
           <div class="msg-grid" id="memMsgGrid"></div>
+        </div>
+
+        <!-- HABITS TAB (Member) -->
+        <div id="memTabHabits" class="hidden">
+          <div id="habitMemContent"></div>
         </div>
       </div>
     </div>
@@ -3437,6 +3508,7 @@ function initApp(){
   renderAll();
   schedReminder();
   startAlertSystem();
+  // startReminderEngine called after page fully loads (see bottom of file)
 }
 
 function renderDayNav(){
@@ -3973,6 +4045,7 @@ function tCard(t,mode){
         <span>📁 ${t.category}</span>
         ${ds&&mode==='daily'?`<span>📅 ${ds}</span>`:''}
         ${t.notes?`<span>📝 ${t.notes.slice(0,36)}${t.notes.length>36?'…':''}</span>`:''}
+        ${t.reminderTime?`<span style="color:var(--purple);font-weight:600">🔔 ${fmt(t.reminderTime)}</span>`:''}
         ${timerLabel?`<span style="color:var(--purple);font-weight:600">⏱️ ${timerLabel}</span>`:''}
       </div>
     </div>
@@ -4129,11 +4202,14 @@ function addTask(type){
   const title=document.getElementById('inT').value.trim();if(!title){toast('⚠️ Enter a task title!');return;}
   const sel=document.getElementById('inD');const days=type==='extra'?[]:Array.from(sel.selectedOptions).map(o=>+o.value);
   if(type==='daily'&&!days.length){toast('⚠️ Select at least one day!');return;}
-  var _nt={id:nid(),title,assignee:document.getElementById('inA').value,priority:document.getElementById('inP').value,startTime:document.getElementById('inSt').value,endTime:document.getElementById('inEt').value,days,category:document.getElementById('inC').value,notes:document.getElementById('inN').value.trim(),type,done:{},reassignedFrom:null,calDate:null,created:Date.now()};tasks.push(_nt);if(typeof gsSyncTask==='function')gsSyncTask('add',_nt);
-  sv();renderAll();clearForm();toast(type==='extra'?'⚡ Extra task added!':'📅 Task added!');
+  const remEl=document.getElementById('inRem');
+  var _nt={id:nid(),title,assignee:document.getElementById('inA').value,priority:document.getElementById('inP').value,startTime:document.getElementById('inSt').value,endTime:document.getElementById('inEt').value,reminderTime:remEl?remEl.value:'',days,category:document.getElementById('inC').value,notes:document.getElementById('inN').value.trim(),type,done:{},reassignedFrom:null,calDate:null,created:Date.now()};tasks.push(_nt);if(typeof gsSyncTask==='function')gsSyncTask('add',_nt);
+  sv();renderAll();clearForm();
+  if(_nt.reminderTime)toast('📅 Task added! 🔔 Reminder set for '+fmt(_nt.reminderTime));
+  else toast(type==='extra'?'⚡ Extra task added!':'📅 Task added!');
   if(type==='extra')setTimeout(()=>{buildNotif();if(!notifOpen)ringBell();},300);
 }
-function clearForm(){['inT','inN','inSt','inEt'].forEach(id=>document.getElementById(id).value='');document.getElementById('inP').value='medium';Array.from(document.getElementById('inD').options).forEach(o=>o.selected=false);}
+function clearForm(){['inT','inN','inSt','inEt'].forEach(id=>document.getElementById(id).value='');const ri=document.getElementById('inRem');if(ri)ri.value='';document.getElementById('inP').value='medium';Array.from(document.getElementById('inD').options).forEach(o=>o.selected=false);}
 function toggleDone(id,mode){
   const t=tasks.find(x=>x.id===id);if(!t)return;
   if(!t.done)t.done={};
@@ -4146,7 +4222,7 @@ function toggleDone(id,mode){
   gsSyncComplete(t, t.done[k]);
   sv();renderAll();toast(t.done[k]?'✅ Done!':'↩️ Marked incomplete');
 }
-function editTask(id){const t=tasks.find(x=>x.id===id);if(!t)return;document.getElementById('inT').value=t.title;document.getElementById('inA').value=t.assignee;document.getElementById('inP').value=t.priority;document.getElementById('inSt').value=t.startTime||'';document.getElementById('inEt').value=t.endTime||'';document.getElementById('inC').value=t.category;document.getElementById('inN').value=t.notes||'';Array.from(document.getElementById('inD').options).forEach(o=>o.selected=t.days&&t.days.includes(+o.value));tasks=tasks.filter(x=>x.id!==id);sv();renderAll();window.scrollTo({top:0,behavior:'smooth'});toast('✏️ Loaded for editing');}
+function editTask(id){const t=tasks.find(x=>x.id===id);if(!t)return;document.getElementById('inT').value=t.title;document.getElementById('inA').value=t.assignee;document.getElementById('inP').value=t.priority;document.getElementById('inSt').value=t.startTime||'';document.getElementById('inEt').value=t.endTime||'';document.getElementById('inC').value=t.category;document.getElementById('inN').value=t.notes||'';const ri=document.getElementById('inRem');if(ri)ri.value=t.reminderTime||'';Array.from(document.getElementById('inD').options).forEach(o=>o.selected=t.days&&t.days.includes(+o.value));tasks=tasks.filter(x=>x.id!==id);sv();renderAll();window.scrollTo({top:0,behavior:'smooth'});toast('✏️ Loaded for editing');}
 function openDel(id){delId=id;document.getElementById('delM').classList.remove('hidden');}
 function confDel(){const tid=delId;tasks=tasks.filter(t=>t.id!==tid);gsSyncDelete(tid);sv();closeM('delM');renderAll();toast('🗑️ Deleted');}
 
@@ -4155,10 +4231,10 @@ function confDel(){const tid=delId;tasks=tasks.filter(t=>t.id!==tid);gsSyncDelet
 // ═══════════════════════════════════════
 function mTab(tab,el){
   mgrTab_=tab;
-  ['daily','messages','team','calendar','absent','extra','weekoff','tasktemps','nameeditor','dayoffreqs','sheets','teamsetup'].forEach(t=>{const e=document.getElementById('mgrTab'+t.charAt(0).toUpperCase()+t.slice(1));if(e)e.classList.toggle('hidden',t!==tab);});
+  ['daily','messages','team','calendar','absent','extra','weekoff','tasktemps','nameeditor','dayoffreqs','sheets','teamsetup','habits'].forEach(t=>{const e=document.getElementById('mgrTab'+t.charAt(0).toUpperCase()+t.slice(1));if(e)e.classList.toggle('hidden',t!==tab);});
   document.querySelectorAll('#mgrPills .np').forEach(b=>b.classList.remove('on'));if(el)el.classList.add('on');
   const ap=document.getElementById('addPanel'),bd=document.getElementById('btnDL'),be=document.getElementById('btnXT');
-  const noAdd=['messages','team','calendar','absent','weekoff','dayoffreqs','tasktemps','nameeditor','sheets','teamsetup'];
+  const noAdd=['messages','team','calendar','absent','weekoff','dayoffreqs','tasktemps','nameeditor','sheets','teamsetup','habits'];
   if(noAdd.includes(tab)){
     ap.classList.add('hidden');
     if(tab==='calendar')renderCal();if(tab==='absent')renderAbsent();if(tab==='weekoff')renderWO();
@@ -4167,17 +4243,19 @@ function mTab(tab,el){
     if(tab==='tasktemps')renderTaskTemplates();if(tab==='nameeditor')renderNameEditor();
     if(tab==='sheets'){renderSheets();gsUpdateStatus();}
     if(tab==='teamsetup')renderTeamSetup();
+    if(tab==='habits')renderHabits(['habitMgrContent']);
   } else{ap.classList.remove('hidden');if(tab==='extra'){document.getElementById('addLbl').textContent='Add Extra / Urgent Task';bd.classList.add('hidden');be.classList.remove('hidden');}else{document.getElementById('addLbl').textContent='Add Daily Task';bd.classList.remove('hidden');be.classList.add('hidden');}}
 }
 
 function memTab(tab,el){
   memTab_=tab;
-  ['mytasks','notifications','requestoff','myhistory','messages'].forEach(t=>{const e=document.getElementById('memTab'+t.charAt(0).toUpperCase()+t.slice(1));if(e)e.classList.toggle('hidden',t!==tab);});
+  ['mytasks','notifications','requestoff','myhistory','messages','habits'].forEach(t=>{const e=document.getElementById('memTab'+t.charAt(0).toUpperCase()+t.slice(1));if(e)e.classList.toggle('hidden',t!==tab);});
   document.querySelectorAll('#memPills .np').forEach(b=>b.classList.remove('on'));if(el)el.classList.add('on');
   if(tab==='messages')renderMemMessages();
   if(tab==='notifications')renderMemNotifs();
   if(tab==='requestoff')renderDORForm();
   if(tab==='myhistory')renderMemSched();
+  if(tab==='habits')renderHabits(['habitMemContent']);
 }
 
 // ═══════════════════════════════════════
@@ -7080,34 +7158,390 @@ function renderSheetsQuick(){
 </div>
 
 
-<!-- SHEETS QUICK ACCESS MODAL (from slide menu) -->
-<div id="sheetsQuickModal" class="modal-overlay hidden">
-  <div class="modal-box" style="max-width:480px;max-height:80vh;display:flex;flex-direction:column">
-    <div class="modal-hdr">
-      <span>📊 Sheets Library</span>
-      <button class="modal-close" onclick="closeM('sheetsQuickModal')">✕</button>
+<!-- ══ SMART REMINDER POPUP ══ -->
+<div class="rem-popup" id="remPopup">
+  <div class="rem-top">
+    <div class="rem-icon" id="remIcon">⏰</div>
+    <div>
+      <div class="rem-title" id="remTitle">Task Reminder</div>
+      <div class="rem-sub" id="remSub">It's time!</div>
     </div>
-    <div style="display:flex;gap:8px;margin-bottom:14px">
-      <div style="flex:1;display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rs);padding:8px 12px">
-        <span style="color:var(--tx3)">🔍</span>
-        <input type="text" id="sheetQuickSearch" placeholder="Search sheets..."
-          oninput="renderSheetsQuick()"
-          style="background:none;border:none;outline:none;color:var(--tx);font-size:.82rem;width:100%;font-family:var(--font)"/>
-      </div>
-      <select id="sheetQuickCat" onchange="renderSheetsQuick()"
-        style="background:var(--bg2);border:1px solid var(--bd);border-radius:var(--rs);padding:8px 10px;color:var(--tx);font-size:.75rem;font-family:var(--font);outline:none">
-        <option value="">All</option>
-      </select>
-    </div>
-    <div id="sheetsQuickList" style="overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:8px"></div>
-    <div id="sheetsQuickEmpty" class="hidden" style="text-align:center;padding:30px;color:var(--tx3);font-size:.8rem">
-      No sheets found. Add sheets in the Manager → Sheets tab.
-    </div>
-    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--bd)">
-      <button class="btn bg" onclick="closeM('sheetsQuickModal');if(cu&&isMgrLevel(cu.role)){openAddSheetModal();}" style="width:100%;font-size:.78rem">+ Add New Sheet</button>
-    </div>
+    <button onclick="dismissReminder()" style="background:none;border:none;cursor:pointer;color:var(--tx3);font-size:14px;padding:2px;margin-left:auto;line-height:1">✕</button>
+  </div>
+  <div class="rem-btns">
+    <button class="rem-btn" onclick="snoozeReminder(5)">😴 5 min</button>
+    <button class="rem-btn" onclick="snoozeReminder(15)">⏱ 15 min</button>
+    <button class="rem-btn" onclick="snoozeReminder(30)">⏳ 30 min</button>
+    <button class="rem-btn done" onclick="dismissReminder()">✓ Got it</button>
   </div>
 </div>
+
+<script>
+// ═══════════════════════════════════════
+// SMART NOTIFICATION & REMINDER SYSTEM
+// ═══════════════════════════════════════
+let reminderQueue=[];
+let snoozedUntil={};
+let remCheckInterval=null;
+
+// Play a soft chime sound using Web Audio API
+function playChime(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const freqs=[523,659,784,1047];
+    freqs.forEach((f,i)=>{
+      const osc=ctx.createOscillator();
+      const gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.type='sine';osc.frequency.value=f;
+      gain.gain.setValueAtTime(0,ctx.currentTime+i*0.12);
+      gain.gain.linearRampToValueAtTime(0.18,ctx.currentTime+i*0.12+0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+i*0.12+0.4);
+      osc.start(ctx.currentTime+i*0.12);
+      osc.stop(ctx.currentTime+i*0.12+0.5);
+    });
+  }catch(e){}
+}
+
+// Request browser notification permission
+function requestNotifPermission(){
+  if('Notification' in window && Notification.permission==='default'){
+    Notification.requestPermission();
+  }
+}
+
+// Fire a browser push notification
+function firePushNotif(title,body){
+  if('Notification' in window && Notification.permission==='granted'){
+    const n=new Notification('🔔 '+title,{body,icon:'',tag:'habuild-reminder',requireInteraction:false});
+    setTimeout(()=>n.close(),8000);
+  }
+}
+
+// Show the in-app reminder popup
+function showReminderPopup(title,sub,icon='⏰'){
+  document.getElementById('remTitle').textContent=title;
+  document.getElementById('remSub').textContent=sub;
+  document.getElementById('remIcon').textContent=icon;
+  const p=document.getElementById('remPopup');
+  p.classList.add('show');
+  playChime();
+  ringBell();
+  firePushNotif(title,sub);
+}
+
+function dismissReminder(){
+  document.getElementById('remPopup').classList.remove('show');
+}
+
+function snoozeReminder(mins){
+  // Re-show after N minutes
+  const title=document.getElementById('remTitle').textContent;
+  const sub=document.getElementById('remSub').textContent;
+  const icon=document.getElementById('remIcon').textContent;
+  dismissReminder();
+  setTimeout(()=>showReminderPopup(title,sub,icon), mins*60*1000);
+  toast('😴 Snoozed for '+mins+' min');
+}
+
+// Check all tasks with a reminder time every minute
+function startReminderEngine(){
+  if(remCheckInterval)clearInterval(remCheckInterval);
+  remCheckInterval=setInterval(checkTaskReminders,30000);
+  // Also check on load
+  setTimeout(checkTaskReminders,2000);
+  requestNotifPermission();
+}
+
+function checkTaskReminders(){
+  if(!cu)return;
+  const now=new Date();
+  const hhmm=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  const todayKey=tds();
+
+  // Check daily tasks assigned to current user that have a reminderTime
+  const myTasks=tasks.filter(t=>{
+    if(!t.reminderTime)return false;
+    if(t.type==='daily'){
+      if(!t.days||!t.days.includes(todayI))return false;
+      if(!t.assignee||!t.assignee.startsWith(cu.name))return false;
+    } else if(t.type==='extra'){
+      if(!t.assignee||!t.assignee.startsWith(cu.name))return false;
+    } else return false;
+    return true;
+  });
+
+  myTasks.forEach(t=>{
+    const remKey='rem_fired_'+t.id+'_'+todayKey+'_'+t.reminderTime;
+    const snoozeKey='rem_snooze_'+t.id;
+    // Already fired today?
+    if(localStorage.getItem(remKey))return;
+    // Snoozed?
+    if(snoozedUntil[t.id]&&snoozedUntil[t.id]>Date.now())return;
+    if(t.reminderTime===hhmm){
+      localStorage.setItem(remKey,'1');
+      const done=isDone(t,t.type);
+      if(!done){
+        const icon=t.priority==='high'?'🔴':t.priority==='medium'?'🟡':'🟢';
+        showReminderPopup(
+          t.title,
+          (t.startTime?'Starts at '+fmt(t.startTime)+' · ':'')+t.category,
+          icon
+        );
+        addMemNotif(cu.name,'⏰ Task Reminder',t.title,'brand');
+      }
+    }
+  });
+
+  // Also check message template alerts
+  msgTemplates.forEach(mt=>{
+    if(!mt.alertMins||!mt.time)return;
+    const [h2,m2]=mt.time.split(':').map(Number);
+    const alertTime=new Date();alertTime.setHours(h2);alertTime.setMinutes(m2-mt.alertMins);alertTime.setSeconds(0);
+    const alertHHMM=alertTime.getHours().toString().padStart(2,'0')+':'+alertTime.getMinutes().toString().padStart(2,'0');
+    const msgKey='msg_alert_'+mt.id+'_'+todayKey;
+    if(alertHHMM===hhmm&&!localStorage.getItem(msgKey)){
+      localStorage.setItem(msgKey,'1');
+      showReminderPopup('📢 '+mt.name,'Send in '+mt.alertMins+' min · '+mt.time,'📢');
+    }
+  });
+
+  // Check habit reminders
+  if(typeof habits!=='undefined'){
+    habits.forEach(h=>{
+      if(!h.remTime||h.remTime!==hhmm)return;
+      const k='hb_hrem_'+h.id+'_'+todayKey;
+      if(localStorage.getItem(k))return;
+      localStorage.setItem(k,'1');
+      if(!isHabitDone(h.id)){
+        showReminderPopup(
+          h.emoji+' '+h.name,
+          'Daily habit reminder — don\'t break the streak!'+(getHabitStreak(h.id)>0?' 🔥 '+getHabitStreak(h.id)+' day streak':''),
+          h.emoji
+        );
+      }
+    });
+  }
+}
+
+// ═══════════════════════════════════════
+// HABIT TRACKER
+// ═══════════════════════════════════════
+let habits=JSON.parse(localStorage.getItem('hb_habits')||'[]');
+const HABIT_CATS=['Health','Study','Work','Mindfulness','Fitness','Finance','Social','Other'];
+const HABIT_EMOJIS=['🏃','📚','💧','🧘','💪','😴','🥗','✍️','🎯','💊','🧹','📝'];
+const HABIT_COLORS=['#6366f1','#10b981','#f59e0b','#ef4444','#8b5cf6','#0891b2','#f97316','#be185d'];
+
+function svHabits(){localStorage.setItem('hb_habits',JSON.stringify(habits));}
+function habitKey(id,date){return 'hb_hc_'+id+'_'+(date||tds());}
+function isHabitDone(id,date){return localStorage.getItem(habitKey(id,date))==='1';}
+function setHabitDone(id,done,date){
+  const k=habitKey(id,date||tds());
+  if(done)localStorage.setItem(k,'1');
+  else localStorage.removeItem(k);
+  updateHabitStreak(id);
+  svHabits();
+}
+
+function getHabitStreak(id){
+  let streak=0;
+  const today=new Date();
+  for(let i=0;i<365;i++){
+    const d=new Date(today);d.setDate(d.getDate()-i);
+    const ds=d.toISOString().slice(0,10);
+    if(isHabitDone(id,ds))streak++;
+    else if(i>0)break; // broken streak
+  }
+  return streak;
+}
+
+function updateHabitStreak(id){
+  const h=habits.find(x=>x.id===id);
+  if(!h)return;
+  h.streak=getHabitStreak(id);
+  const best=parseInt(localStorage.getItem('hb_hbest_'+id)||'0');
+  if(h.streak>best)localStorage.setItem('hb_hbest_'+id,h.streak);
+}
+
+function getBestStreak(id){
+  return parseInt(localStorage.getItem('hb_hbest_'+id)||'0');
+}
+
+// Returns last 28 days for heatmap
+function getHabitHeatmap(id){
+  const days=[];
+  const today=new Date();
+  for(let i=27;i>=0;i--){
+    const d=new Date(today);d.setDate(d.getDate()-i);
+    const ds=d.toISOString().slice(0,10);
+    days.push({ds,done:isHabitDone(id,ds),isToday:i===0});
+  }
+  return days;
+}
+
+// Returns this week Mon-Sun
+function getHabitWeek(id){
+  const week=[];
+  const today=new Date();
+  const dayOfWeek=today.getDay()===0?6:today.getDay()-1;
+  for(let i=0;i<7;i++){
+    const d=new Date(today);d.setDate(d.getDate()-(dayOfWeek-i));
+    const ds=d.toISOString().slice(0,10);
+    week.push({label:DS[i],ds,done:isHabitDone(id,ds),isToday:i===dayOfWeek});
+  }
+  return week;
+}
+
+function addHabit(){
+  const name=(document.getElementById('hNewName').value||'').trim();
+  if(!name){toast('Enter habit name!');return;}
+  const emoji=document.getElementById('hNewEmoji').value||'🎯';
+  const cat=document.getElementById('hNewCat').value||'Other';
+  const color=document.getElementById('hNewColor').value||'#6366f1';
+  const remTime=document.getElementById('hNewRem').value||'';
+  const id='h_'+Date.now();
+  habits.push({id,name,emoji,cat,color,streak:0,remTime,created:tds()});
+  svHabits();
+  document.getElementById('hNewName').value='';
+  document.getElementById('hNewRem').value='';
+  renderHabits();
+  toast('🌱 Habit added!');
+}
+
+function deleteHabit(id){
+  if(!confirm('Delete this habit?'))return;
+  habits=habits.filter(h=>h.id!==id);
+  svHabits();renderHabits();toast('Habit deleted');
+}
+
+function toggleHabitToday(id){
+  const done=isHabitDone(id);
+  setHabitDone(id,!done);
+  renderHabits();
+  if(!done) toast('✅ Habit done! Keep it up! 🔥');
+}
+
+function renderHabits(containerIds){
+  const ids=containerIds||['habitMgrContent','habitMemContent'];
+  ids.forEach(cid=>{
+    const el=document.getElementById(cid);
+    if(!el)return;
+
+    // Stats
+    const total=habits.length;
+    const doneToday=habits.filter(h=>isHabitDone(h.id)).length;
+    const bestStreak=habits.reduce((max,h)=>Math.max(max,getBestStreak(h.id)),0);
+    const longestCurrent=habits.reduce((max,h)=>Math.max(max,getHabitStreak(h.id)),0);
+
+    let html=`
+    <div class="sh" style="margin-bottom:14px">
+      <h2 style="font-family:'Fraunces',serif">🌱 Habit Tracker</h2>
+      <span class="psm">${new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})}</span>
+    </div>
+    <div class="habit-stats-row">
+      <div class="habit-stat"><div class="n" style="color:var(--brand)">${total}</div><div class="l">Habits</div></div>
+      <div class="habit-stat"><div class="n" style="color:var(--brand2)">${doneToday}</div><div class="l">Done Today</div></div>
+      <div class="habit-stat"><div class="n" style="color:var(--gold)">${longestCurrent}</div><div class="l">Current Streak</div></div>
+      <div class="habit-stat"><div class="n" style="color:var(--orange)">${bestStreak}</div><div class="l">Best Streak</div></div>
+    </div>
+
+    <!-- Add Habit Panel -->
+    <div class="habit-add-panel">
+      <div class="ph" style="margin-bottom:13px">➕ Add New Habit</div>
+      <div class="g4">
+        <div><span class="fl">Habit Name *</span><input class="fi2" id="hNewName" placeholder="e.g. Drink water" onkeydown="if(event.key==='Enter')addHabit()"/></div>
+        <div>
+          <span class="fl">Emoji</span>
+          <select class="fi2" id="hNewEmoji">${HABIT_EMOJIS.map(e=>`<option value="${e}">${e}</option>`).join('')}</select>
+        </div>
+        <div>
+          <span class="fl">Category</span>
+          <select class="fi2" id="hNewCat">${HABIT_CATS.map(c=>`<option>${c}</option>`).join('')}</select>
+        </div>
+        <div><span class="fl">Reminder Time</span><input class="fi2" type="time" id="hNewRem" title="Daily reminder for this habit"/></div>
+      </div>
+      <div style="display:flex;gap:9px;margin-top:11px;align-items:center;flex-wrap:wrap">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          ${HABIT_COLORS.map(c=>`<div onclick="document.getElementById('hNewColor').value='${c}'" style="width:22px;height:22px;border-radius:50%;background:${c};cursor:pointer;border:2px solid transparent;transition:all .15s" onmouseover="this.style.borderColor='#fff'" onmouseout="this.style.borderColor='transparent'"></div>`).join('')}
+        </div>
+        <input type="hidden" id="hNewColor" value="${HABIT_COLORS[0]}"/>
+        <button class="btn bg" onclick="addHabit()" style="margin-left:auto">🌱 Add Habit</button>
+      </div>
+    </div>
+
+    <!-- Habit Cards -->
+    ${!habits.length?`<div style="text-align:center;padding:40px;color:var(--tx3)"><div style="font-size:2.5rem;margin-bottom:10px">🌱</div><div style="font-weight:600">No habits yet</div><div style="font-size:.8rem;margin-top:5px">Add your first habit above to start tracking!</div></div>`:''}
+    <div class="habit-grid">
+    ${habits.map(h=>{
+      const streak=getHabitStreak(h.id);
+      const best=getBestStreak(h.id);
+      const done=isHabitDone(h.id);
+      const heatmap=getHabitHeatmap(h.id);
+      const week=getHabitWeek(h.id);
+      const streakEmoji=streak>=30?'🏆':streak>=14?'🔥':streak>=7?'⚡':streak>=3?'✨':streak>=1?'👍':'💤';
+      return`
+      <div class="habit-card" style="--habit-color:${h.color}">
+        <div class="habit-card::before" style="background:${h.color}"></div>
+        <style>#hc_${h.id.replace('_','')}::before{background:${h.color}!important}</style>
+        <button class="habit-del-btn" onclick="deleteHabit('${h.id}')">✕</button>
+        <div class="habit-card-top">
+          <div class="habit-emoji">${h.emoji}</div>
+          <div class="habit-info">
+            <div class="habit-name">${h.name}</div>
+            <div class="habit-cat">${h.cat}${h.remTime?' · ⏰ '+fmt(h.remTime):''}</div>
+          </div>
+          <div class="habit-streak-badge">${streakEmoji} ${streak}d</div>
+        </div>
+        <div class="habit-check-row">
+          <div>
+            <div class="habit-big-check ${done?'done':''}" onclick="toggleHabitToday('${h.id}')">
+              ${done?'':'<span style="font-size:1.2rem;color:var(--tx3)">○</span>'}
+            </div>
+            <div style="font-size:.63rem;color:var(--tx3);margin-top:4px;text-align:center">${done?'Done ✓':'Tap to check'}</div>
+          </div>
+          <div class="habit-streak-info">
+            <div class="habit-streak-num" style="color:${h.color}">${streak}</div>
+            <div class="habit-streak-lbl">day streak</div>
+            <div style="font-size:.6rem;color:var(--tx3);margin-top:2px">Best: ${best}d</div>
+          </div>
+        </div>
+        <!-- Weekly dots -->
+        <div class="habit-week">
+          ${week.map(w=>`
+            <div class="hw-dot">
+              <div class="hw-dot-circle ${w.done?'done':''}" style="${w.done?'background:'+h.color+';border-color:'+h.color:''}${w.isToday?';outline:2px solid '+h.color+';outline-offset:2px':''}">${w.label.slice(0,1)}</div>
+              <div class="hw-dot-lbl">${w.label}</div>
+            </div>`).join('')}
+        </div>
+        <!-- 28-day heatmap -->
+        <div class="habit-heatmap" style="margin-top:10px">
+          ${heatmap.map(d=>`<div class="hm-cell ${d.done?'done-3':''} ${d.isToday?'today':''}" style="${d.done?'background:'+h.color+'99':''}" title="${d.ds}"></div>`).join('')}
+        </div>
+      </div>`;
+    }).join('')}
+    </div>`;
+    el.innerHTML=html;
+  });
+}
+
+// Hook habit tab rendering into tab switches — handled directly in mTab/memTab above
+
+// Habit reminders are checked inside the MAIN checkTaskReminders() above (merged inline)
+// No override needed — avoids call stack overflow
+
+// Fix schedReminder — just call it normally, startReminderEngine is separate
+// (schedReminder override removed to avoid double-call stack)
+
+// Safe engine start — runs AFTER all scripts are parsed
+window.addEventListener('load', function(){
+  setTimeout(function(){
+    if(typeof startReminderEngine==='function' && !window._remStarted){
+      window._remStarted = true;
+      startReminderEngine();
+    }
+  }, 2000);
+});
+</script>
 
 </body>
 </html>
