@@ -2629,6 +2629,7 @@ document.addEventListener('DOMContentLoaded',function(){authSetup();});
           <button class="ib" id="bellBtn" onclick="toggleNotif()"><span id="bicon">🔔</span></button>
           <span class="bbadge hidden" id="bbadge">0</span>
         </div>
+        <button class="ib" onclick="testReminder()" title="Test Reminder (click to test popup+sound)" style="font-size:12px">🧪</button>
       </div>
     </div>
 
@@ -7203,39 +7204,45 @@ function playChime(){
   }catch(e){}
 }
 
-// Request browser notification permission
+// Request browser notification permission on first interaction
 function requestNotifPermission(){
   if('Notification' in window && Notification.permission==='default'){
-    Notification.requestPermission();
+    Notification.requestPermission().then(p=>{
+      if(p==='granted') toast('🔔 Browser notifications enabled!');
+    });
   }
 }
 
 // Fire a browser push notification
 function firePushNotif(title,body){
   if('Notification' in window && Notification.permission==='granted'){
-    const n=new Notification('🔔 '+title,{body,icon:'',tag:'habuild-reminder',requireInteraction:false});
-    setTimeout(()=>n.close(),8000);
+    try{
+      const n=new Notification('⏰ '+title,{body,icon:'',tag:'habuild-'+Date.now(),requireInteraction:false});
+      setTimeout(()=>n.close(),8000);
+    }catch(e){}
   }
 }
 
 // Show the in-app reminder popup
-function showReminderPopup(title,sub,icon='⏰'){
+function showReminderPopup(title,sub,icon){
+  icon=icon||'⏰';
+  const el=document.getElementById('remPopup');
+  if(!el)return;
   document.getElementById('remTitle').textContent=title;
-  document.getElementById('remSub').textContent=sub;
+  document.getElementById('remSub').textContent=sub||'';
   document.getElementById('remIcon').textContent=icon;
-  const p=document.getElementById('remPopup');
-  p.classList.add('show');
+  el.classList.add('show');
   playChime();
   ringBell();
-  firePushNotif(title,sub);
+  firePushNotif(title,sub||'');
 }
 
 function dismissReminder(){
-  document.getElementById('remPopup').classList.remove('show');
+  const el=document.getElementById('remPopup');
+  if(el)el.classList.remove('show');
 }
 
 function snoozeReminder(mins){
-  // Re-show after N minutes
   const title=document.getElementById('remTitle').textContent;
   const sub=document.getElementById('remSub').textContent;
   const icon=document.getElementById('remIcon').textContent;
@@ -7244,69 +7251,85 @@ function snoozeReminder(mins){
   toast('😴 Snoozed for '+mins+' min');
 }
 
-// Check all tasks with a reminder time every minute
+// ── TEST FUNCTION — click 🧪 in header to test ──
+function testReminder(){
+  requestNotifPermission();
+  showReminderPopup(
+    '🧪 Test Reminder — it works!',
+    'Your reminders are working correctly ✅',
+    '⏰'
+  );
+}
+
+// ── CORE ENGINE ──
 function startReminderEngine(){
   if(remCheckInterval)clearInterval(remCheckInterval);
-  remCheckInterval=setInterval(checkTaskReminders,30000);
-  // Also check on load
-  setTimeout(checkTaskReminders,2000);
+  // Check every 10 seconds for reliability
+  remCheckInterval=setInterval(checkTaskReminders, 10000);
+  // First check after 1 second
+  setTimeout(checkTaskReminders, 1000);
   requestNotifPermission();
 }
 
 function checkTaskReminders(){
   if(!cu)return;
   const now=new Date();
-  const hhmm=now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
+  const hh=now.getHours().toString().padStart(2,'0');
+  const mm=now.getMinutes().toString().padStart(2,'0');
+  const hhmm=hh+':'+mm;
   const todayKey=tds();
 
-  // Check daily tasks assigned to current user that have a reminderTime
-  const myTasks=tasks.filter(t=>{
-    if(!t.reminderTime)return false;
-    if(t.type==='daily'){
-      if(!t.days||!t.days.includes(todayI))return false;
-      if(!t.assignee||!t.assignee.startsWith(cu.name))return false;
-    } else if(t.type==='extra'){
-      if(!t.assignee||!t.assignee.startsWith(cu.name))return false;
-    } else return false;
-    return true;
-  });
+  // ── Task reminders ──
+  tasks.forEach(t=>{
+    if(!t.reminderTime)return;
 
-  myTasks.forEach(t=>{
+    // Only fire for tasks that belong to today
+    if(t.type==='daily'){
+      if(!t.days||!t.days.includes(todayI))return;
+      // Manager sees all; others only see their own
+      if(!isMgrLevel(cu.role)&&(!t.assignee||!t.assignee.startsWith(cu.name)))return;
+    } else if(t.type==='extra'){
+      if(!isMgrLevel(cu.role)&&(!t.assignee||!t.assignee.startsWith(cu.name)))return;
+    } else return;
+
+    // Already fired this reminder today?
     const remKey='rem_fired_'+t.id+'_'+todayKey+'_'+t.reminderTime;
-    const snoozeKey='rem_snooze_'+t.id;
-    // Already fired today?
     if(localStorage.getItem(remKey))return;
+
     // Snoozed?
     if(snoozedUntil[t.id]&&snoozedUntil[t.id]>Date.now())return;
+
+    // Time match — fire within the same minute
     if(t.reminderTime===hhmm){
       localStorage.setItem(remKey,'1');
-      const done=isDone(t,t.type);
-      if(!done){
+      if(!isDone(t,t.type)){
         const icon=t.priority==='high'?'🔴':t.priority==='medium'?'🟡':'🟢';
-        showReminderPopup(
-          t.title,
-          (t.startTime?'Starts at '+fmt(t.startTime)+' · ':'')+t.category,
-          icon
-        );
-        addMemNotif(cu.name,'⏰ Task Reminder',t.title,'brand');
+        const sub=(t.startTime?'Starts at '+fmt(t.startTime)+' · ':'')+( t.category||'');
+        showReminderPopup(t.title, sub, icon);
+        if(typeof addMemNotif==='function')addMemNotif(cu.name,'⏰ Task Reminder',t.title,'brand');
       }
     }
   });
 
-  // Also check message template alerts
-  msgTemplates.forEach(mt=>{
-    if(!mt.alertMins||!mt.time)return;
-    const [h2,m2]=mt.time.split(':').map(Number);
-    const alertTime=new Date();alertTime.setHours(h2);alertTime.setMinutes(m2-mt.alertMins);alertTime.setSeconds(0);
-    const alertHHMM=alertTime.getHours().toString().padStart(2,'0')+':'+alertTime.getMinutes().toString().padStart(2,'0');
-    const msgKey='msg_alert_'+mt.id+'_'+todayKey;
-    if(alertHHMM===hhmm&&!localStorage.getItem(msgKey)){
-      localStorage.setItem(msgKey,'1');
-      showReminderPopup('📢 '+mt.name,'Send in '+mt.alertMins+' min · '+mt.time,'📢');
-    }
-  });
+  // ── Message template alerts ──
+  if(typeof msgTemplates!=='undefined'){
+    msgTemplates.forEach(mt=>{
+      if(!mt.alertMins||!mt.time)return;
+      const [h2,m2]=mt.time.split(':').map(Number);
+      const alertD=new Date();
+      alertD.setHours(h2,m2-parseInt(mt.alertMins),0,0);
+      const alertHH=alertD.getHours().toString().padStart(2,'0');
+      const alertMM=alertD.getMinutes().toString().padStart(2,'0');
+      const alertHHMM=alertHH+':'+alertMM;
+      const msgKey='msg_alert_'+mt.id+'_'+todayKey;
+      if(alertHHMM===hhmm&&!localStorage.getItem(msgKey)){
+        localStorage.setItem(msgKey,'1');
+        showReminderPopup('📢 '+mt.name,'Send in '+mt.alertMins+' min · '+mt.time,'📢');
+      }
+    });
+  }
 
-  // Check habit reminders
+  // ── Habit reminders ──
   if(typeof habits!=='undefined'){
     habits.forEach(h=>{
       if(!h.remTime||h.remTime!==hhmm)return;
@@ -7314,9 +7337,10 @@ function checkTaskReminders(){
       if(localStorage.getItem(k))return;
       localStorage.setItem(k,'1');
       if(!isHabitDone(h.id)){
+        const streak=getHabitStreak(h.id);
         showReminderPopup(
           h.emoji+' '+h.name,
-          'Daily habit reminder — don\'t break the streak!'+(getHabitStreak(h.id)>0?' 🔥 '+getHabitStreak(h.id)+' day streak':''),
+          'Daily habit reminder!'+(streak>0?' 🔥 '+streak+' day streak — keep it going!':''),
           h.emoji
         );
       }
@@ -7540,7 +7564,92 @@ window.addEventListener('load', function(){
       startReminderEngine();
     }
   }, 2000);
+
+  // ── Register Service Worker for background reminders ──
+  if('serviceWorker' in navigator && location.protocol === 'https:'){
+    // Get the correct base path for GitHub Pages
+    const swPath = location.pathname.replace(/\/[^/]*$/, '/') + 'sw.js';
+    navigator.serviceWorker.register(swPath).then(function(reg){
+      window._swReg = reg;
+      // Wait for SW to be active before syncing
+      if(reg.active){
+        syncRemindersToSW();
+      } else {
+        const sw = reg.installing || reg.waiting;
+        if(sw){
+          sw.addEventListener('statechange', function(){
+            if(sw.state === 'activated'){
+              window._swReg = reg;
+              syncRemindersToSW();
+            }
+          });
+        }
+      }
+    }).catch(function(e){
+      // SW failed silently — in-tab reminders still work
+    });
+
+    // Listen for messages FROM the service worker
+    navigator.serviceWorker.addEventListener('message', function(e){
+      if(e.data && e.data.type === 'SHOW_REMINDER'){
+        showReminderPopup(e.data.title, e.data.sub, e.data.icon);
+      }
+    });
+  }
 });
+
+// Push current reminder schedule to the Service Worker
+function syncRemindersToSW(){
+  if(!window._swReg || !window._swReg.active) return;
+  if(!cu) return;
+
+  const todayKey = tds();
+  const schedule = [];
+
+  // Collect all task reminders
+  tasks.forEach(t=>{
+    if(!t.reminderTime) return;
+    if(t.type==='daily' && (!t.days || !t.days.includes(todayI))) return;
+    const remKey = 'rem_fired_'+t.id+'_'+todayKey+'_'+t.reminderTime;
+    if(localStorage.getItem(remKey)) return; // already fired
+    schedule.push({
+      id: 'task_'+t.id,
+      time: t.reminderTime,
+      title: t.title,
+      sub: (t.startTime ? 'Starts at '+fmt(t.startTime)+' · ' : '')+(t.category||''),
+      icon: t.priority==='high'?'🔴':t.priority==='medium'?'🟡':'🟢'
+    });
+  });
+
+  // Collect habit reminders
+  if(typeof habits !== 'undefined'){
+    habits.forEach(h=>{
+      if(!h.remTime) return;
+      const k = 'hb_hrem_'+h.id+'_'+todayKey;
+      if(localStorage.getItem(k)) return;
+      schedule.push({
+        id: 'habit_'+h.id,
+        time: h.remTime,
+        title: h.emoji+' '+h.name,
+        sub: 'Daily habit reminder! Don\'t break the streak!',
+        icon: h.emoji
+      });
+    });
+  }
+
+  window._swReg.active.postMessage({
+    type: 'SET_REMINDERS',
+    schedule,
+    todayKey
+  });
+}
+
+// Call syncRemindersToSW whenever tasks are saved
+const _origSvForSW = sv;
+function sv(){
+  _origSvForSW();
+  setTimeout(syncRemindersToSW, 500);
+}
 </script>
 
 </body>
